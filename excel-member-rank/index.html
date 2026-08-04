@@ -208,18 +208,58 @@ function renderSeasons(){
  $$('.season-chip').forEach(b=>b.onclick=()=>{state.season=b.dataset.season;state.page=1;renderSeasons();syncHash();render()});
 }
 function allRows(){
- let rows=state.db.map(m=>({member:m,donation:num(m.totalDonation),rankName:m.position||'-',staffExcluded:false}));
+ let rows=state.db.map(m=>({
+   member:m,
+   donation:num(m.totalDonation),
+   rankName:m.position||'-',
+   staffExcluded:false
+ }));
+
  if(state.mode==='season'){
    rows=state.db.map(m=>{
-     const h=(m.seasonHistory||[]).find(x=>String(x.seasonNo)===String(state.season));
-     return h?{member:m,donation:num(h.totalDonation),rankName:h.rankName||'-',staffExcluded:!!h.staffExcluded}:null;
+     const h=(m.seasonHistory||[]).find(
+       x=>String(x.seasonNo)===String(state.season)
+     );
+
+     return h?{
+       member:m,
+       donation:num(h.totalDonation),
+       rankName:h.rankName||'-',
+       staffExcluded:!!h.staffExcluded
+     }:null;
    }).filter(Boolean);
  }
- rows=rows.filter(r=>state.showInactive||r.member.activated);
+
+ // 순위는 검색어와 퇴사 멤버 표시 여부에 관계없이,
+ // 현재 조회 범위(누적 또는 선택 시즌)의 전체 플레이어를 기준으로 계산한다.
+ rows=rows
+   .sort((a,b)=>
+     b.donation-a.donation||
+     String(a.member.name||'').localeCompare(
+       String(b.member.name||''),
+       'ko'
+     )
+   )
+   .map((r,i)=>({
+     ...r,
+     rank:i+1
+   }));
+
+ // 퇴사 멤버 포함 여부는 화면 표시만 제어한다.
+ if(!state.showInactive){
+   rows=rows.filter(r=>r.member.activated);
+ }
+
+ // 검색 역시 화면 표시만 제어하며, 이미 계산된 전체 순위를 유지한다.
  const q=state.query.trim().toLowerCase();
- if(q)rows=rows.filter(r=>String(r.member.name||'').toLowerCase().includes(q)||String(r.member.soopUserId||'').toLowerCase().includes(q));
- rows.sort((a,b)=>b.donation-a.donation||String(a.member.name||'').localeCompare(String(b.member.name||''),'ko'));
- return rows.map((r,i)=>({...r,rank:i+1}));
+ if(q){
+   rows=rows.filter(r=>
+     String(r.member.name||'').toLowerCase().includes(q)||
+     String(r.member.soopUserId||'').toLowerCase().includes(q)
+   );
+ }
+
+ return rows;
 }
 function avatarHtml(member){
  const name=String(member?.name||member?.soopUserId||'?').trim();
