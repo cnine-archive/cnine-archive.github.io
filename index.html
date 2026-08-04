@@ -152,18 +152,43 @@ a{color:inherit}
 }
 .visitor-counter {
   margin-top: 18px;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
   color: #9aa6b5;
   font-size: 11px;
 }
 
-.visitor-counter strong {
+.visitor-count {
   color: #788596;
   font-weight: 700;
 }
 
-.visitor-counter span {
-  margin: 0 5px;
+.visitor-divider {
+  margin: 0 3px;
+}
+
+.visitor-count > div {
+  display: inline !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: inherit !important;
+  font: inherit !important;
+}
+
+.visitor-count #gcvc-for,
+.visitor-count #gcvc-by {
+  display: none !important;
+}
+
+.visitor-count #gcvc-views {
+  color: inherit !important;
+  font: inherit !important;
+  font-weight: 700 !important;
 }
 </style>
 </head>
@@ -204,38 +229,55 @@ a{color:inherit}
   <footer class="footer">CNINE EXCEL ARCHIVE</footer>
 
   <div class="visitor-counter">
-  오늘 <strong id="todayVisitors">-</strong>
-  <span>·</span>
-  전체 <strong id="totalVisitors">-</strong>
-</div>
+    <span>오늘</span>
+    <span id="todayVisitors" class="visitor-count">-</span>
+  
+    <span class="visitor-divider">·</span>
+  
+    <span>전체</span>
+    <span id="totalVisitors" class="visitor-count">-</span>
+  </div>
 </main>
-<script data-goatcounter="https://cnine-archive.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script
+  data-goatcounter="https://cninearchive.goatcounter.com/count"
+  src="https://gc.zgo.at/count.js">
+</script>
 <script>
-async function loadVisitorCounts() {
-  const base = "https://cninearchive.goatcounter.com/counter/TOTAL.json";
+  (() => {
+    const today = new Date();
 
-  try {
-    const [todayResponse, totalResponse] = await Promise.all([
-      fetch(`${base}?start=${new Date().toISOString().slice(0, 10)}`),
-      fetch(base)
-    ]);
+    const todayString = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0")
+    ].join("-");
 
-    if (!todayResponse.ok || !totalResponse.ok) {
-      throw new Error("방문자 수 조회 실패");
+    if (!window.goatcounter?.visit_count) {
+      document.querySelector(".visitor-counter")?.remove();
+      return;
     }
 
-    const today = await todayResponse.json();
-    const total = await totalResponse.json();
+    window.goatcounter.visit_count({
+      append: "#todayVisitors",
+      path: "TOTAL",
+      start: todayString,
+      no_branding: true,
+      attr: {
+        width: "auto",
+        height: "auto"
+      }
+    });
 
-    document.getElementById("todayVisitors").textContent = today.count;
-    document.getElementById("totalVisitors").textContent = total.count;
-  } catch (error) {
-    console.warn(error);
-    document.querySelector(".visitor-counter").style.display = "none";
-  }
-}
-
-loadVisitorCounts();
+    window.goatcounter.visit_count({
+      append: "#totalVisitors",
+      path: "TOTAL",
+      no_branding: true,
+      attr: {
+        width: "auto",
+        height: "auto"
+      }
+    });
+  })();
 </script>
 </body>
 </html>
