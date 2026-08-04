@@ -160,35 +160,13 @@ a{color:inherit}
   font-size: 11px;
 }
 
-.visitor-count {
+.visitor-counter strong {
   color: #788596;
   font-weight: 700;
 }
 
 .visitor-divider {
   margin: 0 3px;
-}
-
-.visitor-count > div {
-  display: inline !important;
-  width: auto !important;
-  height: auto !important;
-  padding: 0 !important;
-  border: 0 !important;
-  background: transparent !important;
-  color: inherit !important;
-  font: inherit !important;
-}
-
-.visitor-count #gcvc-for,
-.visitor-count #gcvc-by {
-  display: none !important;
-}
-
-.visitor-count #gcvc-views {
-  color: inherit !important;
-  font: inherit !important;
-  font-weight: 700 !important;
 }
 </style>
 </head>
@@ -228,56 +206,62 @@ a{color:inherit}
 
   <footer class="footer">CNINE EXCEL ARCHIVE</footer>
 
-  <div class="visitor-counter">
+  <div class="visitor-counter" id="visitorCounter">
     <span>오늘</span>
-    <span id="todayVisitors" class="visitor-count">-</span>
+    <strong id="todayVisitors">-</strong>
   
     <span class="visitor-divider">·</span>
   
     <span>전체</span>
-    <span id="totalVisitors" class="visitor-count">-</span>
+    <strong id="totalVisitors">-</strong>
   </div>
 </main>
 <script
-  data-goatcounter="https://cninearchive.goatcounter.com/count"
+  data-goatcounter="https://cnine-archive.goatcounter.com/count"
   src="https://gc.zgo.at/count.js">
 </script>
 <script>
-  (() => {
-    const today = new Date();
+(async () => {
+  const counter = document.getElementById("visitorCounter");
 
-    const todayString = [
-      today.getFullYear(),
-      String(today.getMonth() + 1).padStart(2, "0"),
-      String(today.getDate()).padStart(2, "0")
-    ].join("-");
+  const today = [
+    new Date().getFullYear(),
+    String(new Date().getMonth() + 1).padStart(2, "0"),
+    String(new Date().getDate()).padStart(2, "0")
+  ].join("-");
 
-    if (!window.goatcounter?.visit_count) {
-      document.querySelector(".visitor-counter")?.remove();
-      return;
+  const base =
+    "https://cnine-archive.goatcounter.com/counter/TOTAL.json";
+
+  try {
+    const [todayResponse, totalResponse] = await Promise.all([
+      fetch(
+        `${base}?start=${encodeURIComponent(today)}&end=${encodeURIComponent(today)}`
+      ),
+      fetch(base)
+    ]);
+
+    if (!todayResponse.ok || !totalResponse.ok) {
+      throw new Error(
+        `GoatCounter 오류: ${todayResponse.status}, ${totalResponse.status}`
+      );
     }
 
-    window.goatcounter.visit_count({
-      append: "#todayVisitors",
-      path: "TOTAL",
-      start: todayString,
-      no_branding: true,
-      attr: {
-        width: "auto",
-        height: "auto"
-      }
-    });
+    const [todayData, totalData] = await Promise.all([
+      todayResponse.json(),
+      totalResponse.json()
+    ]);
 
-    window.goatcounter.visit_count({
-      append: "#totalVisitors",
-      path: "TOTAL",
-      no_branding: true,
-      attr: {
-        width: "auto",
-        height: "auto"
-      }
-    });
-  })();
+    document.getElementById("todayVisitors").textContent =
+      todayData.count ?? "0";
+
+    document.getElementById("totalVisitors").textContent =
+      totalData.count ?? "0";
+  } catch (error) {
+    console.warn("방문자 카운터를 불러오지 못했습니다.", error);
+    counter?.remove();
+  }
+})();
 </script>
 </body>
 </html>
