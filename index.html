@@ -150,6 +150,21 @@ a{color:inherit}
   .archive-links{grid-template-columns:1fr}
   .dates{font-size:15px}
 }
+.visitor-counter {
+  margin-top: 18px;
+  text-align: center;
+  color: #9aa6b5;
+  font-size: 11px;
+}
+
+.visitor-counter strong {
+  color: #788596;
+  font-weight: 700;
+}
+
+.visitor-counter span {
+  margin: 0 5px;
+}
 </style>
 </head>
 <body>
@@ -187,6 +202,40 @@ a{color:inherit}
   </section>
 
   <footer class="footer">CNINE EXCEL ARCHIVE</footer>
+
+  <div class="visitor-counter">
+  오늘 <strong id="todayVisitors">-</strong>
+  <span>·</span>
+  전체 <strong id="totalVisitors">-</strong>
+</div>
 </main>
+<script data-goatcounter="https://cnine-archive.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script>
+async function loadVisitorCounts() {
+  const base = "https://cninearchive.goatcounter.com/counter/TOTAL.json";
+
+  try {
+    const [todayResponse, totalResponse] = await Promise.all([
+      fetch(`${base}?start=${new Date().toISOString().slice(0, 10)}`),
+      fetch(base)
+    ]);
+
+    if (!todayResponse.ok || !totalResponse.ok) {
+      throw new Error("방문자 수 조회 실패");
+    }
+
+    const today = await todayResponse.json();
+    const total = await totalResponse.json();
+
+    document.getElementById("todayVisitors").textContent = today.count;
+    document.getElementById("totalVisitors").textContent = total.count;
+  } catch (error) {
+    console.warn(error);
+    document.querySelector(".visitor-counter").style.display = "none";
+  }
+}
+
+loadVisitorCounts();
+</script>
 </body>
 </html>
