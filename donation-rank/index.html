@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>통합후원 랭킹 | 씨나인 엑셀 아카이브</title>
+<style>
+:root{
+  --blue:#2d97cf;--blue2:#1688c7;--bg:#f6f8fb;--card:#fff;--text:#152238;
+  --muted:#758196;--line:#e4e8ee;--soft:#eef7ff;--shadow:0 8px 28px rgba(15,23,42,.08)
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.topbar{height:64px;background:linear-gradient(135deg,#358fc0,#2d9bd1);color:#fff;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.brand{display:flex;align-items:center;min-width:0}.brand img{height:28px;width:auto;display:block}.brand small{font-weight:700;font-size:12px;opacity:.9;margin-left:12px;white-space:nowrap}
+.subtitle{
+    margin-left:12px;
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    opacity:.92;
+    text-decoration:none;
+    transition:opacity .15s;
+}
+.spacer{flex:1}.top-stat{font-size:13px;opacity:.94}
+.main{max-width:1120px;margin:auto;padding:30px 20px 64px}
+.hero-title h1{font-size:25px;margin:0 0 7px}.hero-title p{margin:0;color:var(--muted);font-size:14px}
+.notice{margin:24px 0 20px;background:#edf6ff;border:1px solid #b9dcff;color:#1764d7;border-radius:11px;padding:14px 16px;font-size:13px;line-height:1.65}
+.load-panel{background:#fff;border:1px dashed #a9cfe4;border-radius:16px;padding:28px;text-align:center;margin:22px 0;box-shadow:var(--shadow)}
+.load-panel h2{margin:0 0 8px}.load-panel p{margin:5px 0 16px;color:var(--muted);line-height:1.6}
+.primary{border:0;background:var(--blue2);color:#fff;border-radius:9px;padding:10px 16px;font-weight:800;box-shadow:0 5px 14px rgba(22,136,199,.24)}
+.secondary{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:#384152}
+.hidden{display:none!important}
+.period-tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-top:8px}
+.period-tab{border:0;background:transparent;padding:11px 16px;color:#667085;border-bottom:2px solid transparent}
+.period-tab.active{color:#111827;font-weight:800;border-color:var(--blue2)}
+.period-picker{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+.period-chip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 13px;color:#4b5563}
+.period-chip.active{background:var(--blue2);border-color:var(--blue2);color:#fff;font-weight:800}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin:14px 0}
+.searchbox{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 12px;min-width:0}
+.searchbox span{color:#98a2b3}.searchbox input{border:0;outline:0;background:transparent;width:100%;padding:11px 8px}
+.summary{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:9px 0 12px}
+.summary strong{color:var(--text)}
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+table{width:100%;border-collapse:collapse}
+thead{background:#f1f2f4;color:#667085;font-size:13px}
+th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left}
+th:first-child,td:first-child{width:78px;text-align:center}
+th:last-child,td:last-child{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#f9fcff}
+.rank{font-weight:900}.nick{font-size:14px}.user-id{display:block;color:#98a2b3;font-size:11px;margin-top:3px}
+.amount{font-weight:900;font-variant-numeric:tabular-nums}
+.hidden-user{color:#8a94a5;font-style:italic}
+.empty{text-align:center!important;padding:62px 20px!important;color:var(--muted)}
+.pager{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:24px}
+.pager button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px}.pager button.active{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+.db-info{font-size:12px;color:var(--muted);margin-top:10px}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;border-radius:10px;padding:12px 16px;z-index:200;opacity:0;transform:translateY(8px);transition:.2s}.toast.show{opacity:1;transform:none}
+@media(max-width:720px){
+ .top-stat{display:none}.main{padding:22px 10px 50px}.controls{grid-template-columns:1fr 1fr}.searchbox{grid-column:1/-1}
+ th,td{padding:12px 10px}th:first-child,td:first-child{width:54px}.brand small{display:none}
+ .user-id{display:none}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../">
+    <img src="../logo-dark.png" alt="씨나인">
+  </a>
+  
+  <a class="subtitle" href="./">
+    통합후원 랭킹
+  </a>
+  <div class="spacer"></div><div class="top-stat" id="topStat">DB를 불러오는 중...</div>
+</header>
+
+<main class="main">
+  <section class="hero-title">
+    <h1>통합후원 랭킹</h1>
+    <p>씨나인 후원자 전체 · 연도별 · 월별 랭킹 아카이브</p>
+  </section>
+
+  <!-- <div class="notice">
+    씨나인 통합후원 랭킹 아카이브입니다.<br>
+    조회 기간과 닉네임 검색 조건을 선택해 랭킹을 확인할 수 있습니다.
+  </div> -->
+
+  <section class="load-panel hidden" id="loadPanel">
+    <h2>전체후원랭킹 DB 불러오기</h2>
+    <p><b>cnine-donation-rank-db.json</b> 파일을 선택하거나 이 영역에 끌어다 놓으세요.<br>파일은 브라우저 안에서만 읽으며 외부로 전송하지 않습니다.</p>
+    <input id="fileInput" type="file" accept="application/json,.json" hidden>
+    <button class="primary" id="pickBtn">DB 파일 선택</button>
+    <button class="secondary" id="autoBtn">같은 폴더에서 자동 불러오기</button>
+    <div class="db-info" id="dbInfo"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="period-tabs" id="periodTabs">
+      <button class="period-tab active" data-mode="all">전체</button>
+      <button class="period-tab" data-mode="year">년</button>
+      <button class="period-tab" data-mode="month">월</button>
+    </div>
+
+    <div class="period-picker hidden" id="periodPicker"></div>
+
+    <div class="controls">
+      <label class="searchbox"><span>⌕</span><input id="search" placeholder="닉네임 또는 SOOP ID 검색"></label>
+      <select class="secondary" id="pageSize" aria-label="페이지당 표시 수">
+        <option>50</option><option selected>100</option><option>200</option><option>500</option><option value="0">전체</option>
+      </select>
+      <button class="primary" id="searchBtn">검색</button>
+    </div>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>순위</th><th>SOOP 닉네임</th><th>별풍선 합계</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const state={db:null,mode:'all',key:null,dataset:null,query:'',page:1,pageSize:100};
+const els={loadPanel:$('#loadPanel'),app:$('#app'),fileInput:$('#fileInput'),periodPicker:$('#periodPicker'),search:$('#search'),pageSize:$('#pageSize'),tbody:$('#tbody'),pager:$('#pager'),summary:$('#summary')};
+
+function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(v){return Number.isFinite(Number(v))?Number(v):0}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function showLoadPanel(msg=''){els.loadPanel.classList.remove('hidden');if(msg)$('#dbInfo').textContent=msg}
+function normalizeDb(raw){
+ if(!raw||raw.type!=='cnine-donation-rank'||!raw.datasets)throw new Error('cnine-donation-rank DB 형식이 아닙니다.');
+ return raw;
+}
+function loadDb(raw,source){
+ state.db=normalizeDb(raw);
+ $('#dbInfo').textContent=`${source} · 데이터셋 ${num(state.db.stats?.datasetCount)}개 · 행 ${num(state.db.stats?.totalRows)}개`;
+ $('#topStat').textContent=`데이터셋 ${num(state.db.stats?.datasetCount)}개 · 전체 행 ${num(state.db.stats?.totalRows)}개`;
+ els.loadPanel.classList.add('hidden');els.app.classList.remove('hidden');
+ restoreFromHash();selectDataset();renderPeriodPicker();render();toast('DB를 불러왔습니다.');
+}
+async function readFile(file){try{loadDb(JSON.parse(await file.text()),file.name)}catch(e){alert('DB 파일을 읽지 못했습니다.\n'+e.message)}}
+async function autoLoad({silent=false}={}){
+ try{const r=await fetch('./cnine-donation-rank-db.json',{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);loadDb(await r.json(),'cnine-donation-rank-db.json');return true}
+ catch(e){if(!silent)showLoadPanel(`같은 경로의 DB를 불러오지 못했습니다. (${e.message})`);return false}
+}
+async function init(){
+ if(location.protocol==='file:'){showLoadPanel('오프라인 파일 실행 모드입니다. DB JSON 파일을 선택해 주세요.');return}
+ if(!await autoLoad({silent:true}))showLoadPanel('같은 경로에서 cnine-donation-rank-db.json을 찾지 못했습니다. DB 파일을 직접 선택해 주세요.');
+}
+
+function availableYears(){return Object.keys(state.db?.datasets?.yearly||{}).sort((a,b)=>b.localeCompare(a))}
+function availableMonths(){return Object.keys(state.db?.datasets?.monthly||{}).sort((a,b)=>b.localeCompare(a))}
+function defaultKey(mode){
+ if(mode==='year')return availableYears()[0]||null;
+ if(mode==='month')return availableMonths()[0]||null;
+ return null;
+}
+function selectDataset(){
+ if(!state.db)return;
+ if(state.mode==='all')state.dataset=state.db.datasets.all;
+ else if(state.mode==='year')state.dataset=state.db.datasets.yearly?.[state.key]||null;
+ else state.dataset=state.db.datasets.monthly?.[state.key]||null;
+}
+function label(){
+ if(state.mode==='all')return '전체 기간';
+ if(state.mode==='year')return `${state.key}년`;
+ if(state.mode==='month'){const [y,m]=String(state.key).split('-');return `${y}년 ${Number(m)}월`}
+ return '';
+}
+function renderPeriodPicker(){
+ if(state.mode==='all'){els.periodPicker.classList.add('hidden');els.periodPicker.innerHTML='';return}
+ const keys=state.mode==='year'?availableYears():availableMonths();
+ els.periodPicker.classList.remove('hidden');
+ els.periodPicker.innerHTML=keys.map(k=>`<button class="period-chip ${k===state.key?'active':''}" data-key="${esc(k)}">${state.mode==='year'?esc(k)+'년':esc(k)}</button>`).join('');
+ $$('.period-chip').forEach(b=>b.onclick=()=>{state.key=b.dataset.key;state.page=1;selectDataset();renderPeriodPicker();syncHash();render()});
+}
+function filteredRows(){
+ const rows=Array.isArray(state.dataset?.rows)?state.dataset.rows:[];
+ const q=state.query.trim().toLowerCase();
+ if(!q)return rows;
+ return rows.filter(r=>String(r.soopUserNick??'').toLowerCase().includes(q)||String(r.soopUserId??'').toLowerCase().includes(q));
+}
+function render(){
+ const rows=filteredRows();
+ const size=state.pageSize===0?Math.max(rows.length,1):state.pageSize;
+ const pages=Math.max(1,Math.ceil(rows.length/size));if(state.page>pages)state.page=pages;
+ const start=(state.page-1)*size, visible=rows.slice(start,start+size);
+ els.summary.innerHTML=`<span>조회기간 <strong>${esc(label())}</strong></span><span>·</span><span>전체 <strong>${num(state.dataset?.rowCount)}</strong>명</span>${state.query?`<span>·</span><span>검색결과 <strong>${rows.length}</strong>명</span>`:''}`;
+ if(!state.dataset){
+   els.tbody.innerHTML='<tr><td colspan="3" class="empty">해당 기간의 백업 데이터가 없습니다.</td></tr>';els.pager.innerHTML='';return;
+ }
+ if(!visible.length){
+   els.tbody.innerHTML='<tr><td colspan="3" class="empty">검색 조건에 맞는 후원자가 없습니다.</td></tr>';els.pager.innerHTML='';return;
+ }
+ els.tbody.innerHTML=visible.map(r=>{
+   const hidden=r.isHidden||(!r.soopUserNick&&!r.soopUserId);
+   const nick=hidden?'비공개 후원자':(r.soopUserNick||r.soopUserId||'-');
+   const id=!hidden&&r.soopUserId&&r.soopUserId!==r.soopUserNick?`<span class="user-id">${esc(r.soopUserId)}</span>`:'';
+   const amount=r.balloonCount==null?'-':Number(r.balloonCount).toLocaleString();
+   return `<tr><td class="rank">${num(r.rank)}</td><td class="${hidden?'hidden-user':'nick'}">${esc(nick)}${id}</td><td class="amount">${esc(amount)}</td></tr>`;
+ }).join('');
+ renderPager(pages);
+}
+function renderPager(pages){
+ if(pages<=1){els.pager.innerHTML='';return}
+ const set=new Set([1,pages,state.page-2,state.page-1,state.page,state.page+1,state.page+2]);
+ const nums=[...set].filter(n=>n>=1&&n<=pages).sort((a,b)=>a-b);
+ let out='',prev=0;
+ for(const n of nums){if(prev&&n-prev>1)out+='<span>…</span>';out+=`<button class="${n===state.page?'active':''}" data-page="${n}">${n}</button>`;prev=n}
+ els.pager.innerHTML=out;
+ $$('#pager button').forEach(b=>b.onclick=()=>{state.page=Number(b.dataset.page);render();scrollTo({top:0,behavior:'smooth'})});
+}
+function syncHash(){
+ const p=new URLSearchParams();p.set('view',state.mode);if(state.key)p.set(state.mode,state.key);if(state.query)p.set('search',state.query);
+ history.replaceState(null,'',`${location.pathname}${location.search}#${p}`);
+}
+function restoreFromHash(){
+ const p=new URLSearchParams(location.hash.replace(/^#/,''));
+ const mode=p.get('view');
+ state.mode=['all','year','month'].includes(mode)?mode:'all';
+ state.key=state.mode==='year'?p.get('year'):state.mode==='month'?p.get('month'):null;
+ if(state.mode!=='all'&&!state.key)state.key=defaultKey(state.mode);
+ state.query=p.get('search')||'';els.search.value=state.query;
+ $$('.period-tab').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode));
+}
+$$('.period-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;state.key=defaultKey(state.mode);state.page=1;$$('.period-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.mode===state.mode));selectDataset();renderPeriodPicker();syncHash();render()});
+$('#searchBtn').onclick=()=>{state.query=els.search.value;state.page=1;syncHash();render()};
+els.search.addEventListener('keydown',e=>{if(e.key==='Enter')$('#searchBtn').click()});
+els.search.addEventListener('input',()=>{state.query=els.search.value;state.page=1;syncHash();render()});
+els.pageSize.onchange=()=>{state.pageSize=Number(els.pageSize.value);state.page=1;render()};
+$('#pickBtn').onclick=()=>els.fileInput.click();els.fileInput.onchange=e=>e.target.files[0]&&readFile(e.target.files[0]);$('#autoBtn').onclick=()=>autoLoad();
+els.loadPanel.addEventListener('dragover',e=>{e.preventDefault();els.loadPanel.style.background='#eef9ff'});els.loadPanel.addEventListener('dragleave',()=>els.loadPanel.style.background='');els.loadPanel.addEventListener('drop',e=>{e.preventDefault();els.loadPanel.style.background='';e.dataTransfer.files[0]&&readFile(e.dataTransfer.files[0])});
+window.addEventListener('hashchange',()=>{if(!state.db)return;restoreFromHash();selectDataset();renderPeriodPicker();render()});
+init();
+})();
+</script>
+</body>
+</html>

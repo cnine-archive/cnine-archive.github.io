@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>시그니처 랭킹 | 씨나인 엑셀 아카이브</title>
+<style>
+:root{
+  --blue:#2d97cf;--blue2:#1494d2;--bg:#f7f9fc;--card:#fff;--text:#17243a;
+  --muted:#7a879a;--line:#e4e8ee;--red:#ff3948;--shadow:0 8px 28px rgba(15,23,42,.08)
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.topbar{height:64px;background:linear-gradient(135deg,#358fc0,#2d9bd1);color:#fff;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.brand{display:flex;align-items:center;min-width:0}.brand img{height:28px;width:auto;display:block}.brand small{font-weight:700;font-size:12px;opacity:.9;margin-left:12px;white-space:nowrap}
+.subtitle{
+    margin-left:12px;
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    opacity:.92;
+    text-decoration:none;
+    transition:opacity .15s;
+}
+.spacer{flex:1}.top-stat{font-size:13px;opacity:.94}
+.main{max-width:1120px;margin:auto;padding:30px 20px 64px}
+.hero-title h1{font-size:25px;margin:0 0 7px}.hero-title p{margin:0;color:var(--muted);font-size:14px}
+.notice{margin:24px 0 20px;background:#edf6ff;border:1px solid #b9dcff;color:#1764d7;border-radius:11px;padding:14px 16px;font-size:13px;line-height:1.65}
+.load-panel{background:#fff;border:1px dashed #a9cfe4;border-radius:16px;padding:28px;text-align:center;margin:22px 0;box-shadow:var(--shadow)}
+.load-panel h2{margin:0 0 8px}.load-panel p{margin:5px 0 16px;color:var(--muted);line-height:1.6}
+.primary{border:0;background:var(--blue2);color:#fff;border-radius:9px;padding:10px 16px;font-weight:800;box-shadow:0 5px 14px rgba(22,136,199,.24)}
+.secondary{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:#384152}
+.hidden{display:none!important}
+.period-tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-top:8px;overflow-x:auto}
+.period-tab{border:0;background:transparent;padding:11px 15px;color:#667085;border-bottom:2px solid transparent;white-space:nowrap}
+.period-tab.active{color:#111827;font-weight:800;border-color:var(--blue2)}
+.period-picker{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+.period-chip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 13px;color:#4b5563}
+.period-chip.active{background:var(--blue2);border-color:var(--blue2);color:#fff;font-weight:800}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin:14px 0}
+.searchbox{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 12px;min-width:0}
+.searchbox span{color:#98a2b3}.searchbox input{border:0;outline:0;background:transparent;width:100%;padding:11px 8px}
+.order-switch{display:flex;gap:4px;margin:12px 0}
+.order-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:#667085}
+.order-btn.active{background:var(--blue2);border-color:var(--blue2);color:#fff;font-weight:800}
+.summary{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:9px 0 12px}
+.summary strong{color:var(--text)}
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+table{width:100%;border-collapse:collapse}
+thead{background:#f1f2f4;color:#667085;font-size:13px}
+th,td{padding:13px 16px;border-bottom:1px solid var(--line);text-align:left}
+th:first-child,td:first-child{width:72px;text-align:center}
+th:nth-last-child(-n+2),td:nth-last-child(-n+2){text-align:right}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#f9fcff}
+.rank{font-weight:900}.sig-cell{display:flex;align-items:center;gap:9px;min-width:0}.sig-name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sig-price{font-size:11px;color:#98a2b3;white-space:nowrap}.deleted{font-size:11px;color:#ff5a67;font-weight:800;white-space:nowrap}
+.play-link{width:17px;height:17px;border-radius:50%;background:var(--red);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;text-decoration:none}
+.play-link:before{content:"";display:block;margin-left:2px;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:6px solid #fff}
+.count,.total{font-weight:900;font-variant-numeric:tabular-nums}
+.empty{text-align:center!important;padding:62px 20px!important;color:var(--muted)}
+.pager{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:24px}
+.pager button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px}.pager button.active{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+.db-info{font-size:12px;color:var(--muted);margin-top:10px}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;border-radius:10px;padding:12px 16px;z-index:200;opacity:0;transform:translateY(8px);transition:.2s}.toast.show{opacity:1;transform:none}
+@media(max-width:760px){
+ .top-stat{display:none}.main{padding:22px 10px 50px}.controls{grid-template-columns:1fr 1fr}.searchbox{grid-column:1/-1}
+ th,td{padding:11px 9px}th:first-child,td:first-child{width:48px}.brand small{display:none}.sig-price{display:none}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../">
+    <img src="../logo-dark.png" alt="씨나인">
+  </a>
+  
+  <a class="subtitle" href="./">
+    시그니처 랭킹
+  </a>
+  <div class="spacer"></div><div class="top-stat" id="topStat">DB를 불러오는 중...</div>
+</header>
+
+<main class="main">
+  <section class="hero-title">
+    <h1>시그니처 랭킹</h1>
+    <p>씨나인 엑셀 시그니처 순위 아카이브</p>
+  </section>
+
+  <!-- <div class="notice">
+    씨나인 시그니처랭킹 아카이브입니다.<br>
+  </div> -->
+
+  <section class="load-panel hidden" id="loadPanel">
+    <h2>시그니처랭킹 DB 불러오기</h2>
+    <p><b>cnine-signature-rank-db.json</b> 파일을 선택하거나 이 영역에 끌어다 놓으세요.<br>파일은 브라우저 안에서만 읽으며 외부로 전송하지 않습니다.</p>
+    <input id="fileInput" type="file" accept="application/json,.json" hidden>
+    <button class="primary" id="pickBtn">DB 파일 선택</button>
+    <button class="secondary" id="autoBtn">같은 폴더에서 자동 불러오기</button>
+    <div class="db-info" id="dbInfo"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="period-tabs">
+      <button class="period-tab active" data-mode="all">전체</button>
+      <button class="period-tab" data-mode="season">시즌</button>
+      <button class="period-tab" data-mode="excel">회차</button>
+      <button class="period-tab" data-mode="month">월</button>
+      <button class="period-tab" data-mode="year">년</button>
+    </div>
+
+    <div class="period-picker hidden" id="periodPicker"></div>
+
+    <div class="controls">
+      <label class="searchbox"><span>⌕</span><input id="search" placeholder="시그니처명 검색"></label>
+      <select class="secondary" id="pageSize" aria-label="페이지당 표시 수">
+        <option>50</option><option selected>100</option><option>200</option><option>500</option><option value="0">전체</option>
+      </select>
+      <button class="primary" id="searchBtn">검색</button>
+    </div>
+
+    <div class="order-switch">
+      <button class="order-btn active" data-order="count">달성횟수순</button>
+      <button class="order-btn" data-order="totalBalloon">기여금액순</button>
+    </div>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>순위</th><th>시그니처명 (별풍선수)</th><th>달성횟수</th><th>기여금액 (별풍선)</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const state={db:null,order:'count',group:null,mode:'all',key:null,dataset:null,query:'',page:1,pageSize:100};
+const els={loadPanel:$('#loadPanel'),app:$('#app'),fileInput:$('#fileInput'),periodPicker:$('#periodPicker'),search:$('#search'),pageSize:$('#pageSize'),tbody:$('#tbody'),pager:$('#pager'),summary:$('#summary')};
+
+function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(v){return Number.isFinite(Number(v))?Number(v):0}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function showLoadPanel(msg=''){els.loadPanel.classList.remove('hidden');if(msg)$('#dbInfo').textContent=msg}
+function normalizeDb(raw){
+ if(!raw||raw.type!=='cnine-signature-rank'||!raw.orderBy)throw new Error('cnine-signature-rank DB 형식이 아닙니다.');
+ return raw;
+}
+function availableOrders(){return Object.keys(state.db?.orderBy||{}).filter(k=>state.db.orderBy[k])}
+function loadDb(raw,source){
+ state.db=normalizeDb(raw);
+ restoreFromHash();
+ const orders=availableOrders();
+ if(!orders.length)throw new Error('orderBy 데이터가 비어 있습니다.');
+ if(!['count','totalBalloon'].includes(state.order))state.order=orders.includes('count')?'count':orders[0];
+ bindGroup();
+ if(state.mode!=='all'&&!state.key)state.key=defaultKey(state.mode);
+ selectDataset();renderPeriodPicker();render();
+ $('#dbInfo').textContent=`${source} · 데이터셋 ${num(state.db.stats?.datasetCount)}개 · 행 ${num(state.db.stats?.totalRows)}개`;
+ $('#topStat').textContent=`데이터셋 ${num(state.db.stats?.datasetCount)}개 · 전체 행 ${num(state.db.stats?.totalRows)}개`;
+ els.loadPanel.classList.add('hidden');els.app.classList.remove('hidden');toast('DB를 불러왔습니다.');
+}
+async function readFile(file){try{loadDb(JSON.parse(await file.text()),file.name)}catch(e){alert('DB 파일을 읽지 못했습니다.\n'+e.message)}}
+async function autoLoad({silent=false}={}){
+ try{const r=await fetch('./cnine-signature-rank-db.json',{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);loadDb(await r.json(),'cnine-signature-rank-db.json');return true}
+ catch(e){if(!silent)showLoadPanel(`같은 경로의 DB를 불러오지 못했습니다. (${e.message})`);return false}
+}
+async function init(){
+ if(location.protocol==='file:'){showLoadPanel('오프라인 파일 실행 모드입니다. DB JSON 파일을 선택해 주세요.');return}
+ if(!await autoLoad({silent:true}))showLoadPanel('같은 경로에서 cnine-signature-rank-db.json을 찾지 못했습니다. DB 파일을 직접 선택해 주세요.');
+}
+function bindGroup(){
+ // DB에 선택 정렬 기준 데이터가 있으면 그대로 사용하고,
+ // 없으면 count 데이터를 기준으로 화면에서 재정렬한다.
+ state.group=state.db.orderBy[state.order]||state.db.orderBy.count||Object.values(state.db.orderBy).find(Boolean);
+ $$('.order-btn').forEach(b=>{
+   b.classList.remove('hidden');
+   b.classList.toggle('active',b.dataset.order===state.order);
+ });
+}
+function years(){return Object.keys(state.group?.yearly||{}).sort((a,b)=>b.localeCompare(a))}
+function months(){return Object.keys(state.group?.monthly||{}).sort((a,b)=>b.localeCompare(a))}
+function seasons(){return Object.keys(state.group?.seasons||{}).sort((a,b)=>Number(b)-Number(a))}
+function excels(){return Object.keys(state.group?.excels||{}).sort((a,b)=>Number(b)-Number(a))}
+function defaultKey(mode){
+ if(mode==='year')return years()[0]||null;
+ if(mode==='month')return months()[0]||null;
+ if(mode==='season')return seasons()[0]||null;
+ if(mode==='excel')return excels()[0]||null;
+ return null;
+}
+function selectDataset(){
+ if(!state.group)return;
+ if(state.mode==='all')state.dataset=state.group.all;
+
+ else if(state.mode==='year')state.dataset=state.group.yearly?.[state.key]||null;
+ else if(state.mode==='month')state.dataset=state.group.monthly?.[state.key]||null;
+ else if(state.mode==='season')state.dataset=state.group.seasons?.[state.key]||null;
+ else if(state.mode==='excel')state.dataset=state.group.excels?.[state.key]||null;
+}
+function label(){
+ if(state.mode==='all')return '전체 기간';
+ if(state.mode==='year')return `${state.key}년`;
+ if(state.mode==='month'){const [y,m]=String(state.key).split('-');return `${y}년 ${Number(m)}월`}
+ if(state.mode==='season')return `시즌 ${state.key}`;
+ if(state.mode==='excel')return state.dataset?.label||`회차 ${state.key}`;
+ return '';
+}
+function renderPeriodPicker(){
+ if(state.mode==='all'){els.periodPicker.classList.add('hidden');els.periodPicker.innerHTML='';return}
+ const keys=state.mode==='year'?years():state.mode==='month'?months():state.mode==='season'?seasons():excels();
+ els.periodPicker.classList.remove('hidden');
+ els.periodPicker.innerHTML=keys.map(k=>{
+   let text=k;
+   if(state.mode==='year')text=`${k}년`;
+   if(state.mode==='season')text=`시즌 ${k}`;
+   if(state.mode==='excel')text=state.group.excels?.[k]?.label||`회차 ${k}`;
+   return `<button class="period-chip ${k===state.key?'active':''}" data-key="${esc(k)}">${esc(text)}</button>`;
+ }).join('');
+ if(!keys.length)els.periodPicker.innerHTML='<span style="color:#758196;font-size:13px;padding:8px 0">해당 구분의 백업 데이터가 없습니다.</span>';
+ $$('.period-chip').forEach(b=>b.onclick=()=>{state.key=b.dataset.key;state.page=1;selectDataset();renderPeriodPicker();syncHash();render()});
+}
+function filteredRows(){
+ let rows=Array.isArray(state.dataset?.rows)?[...state.dataset.rows]:[];
+
+ // 전용 orderBy 데이터셋이 없으면, 먼저 전체 기간 데이터 전체를 정렬한 뒤
+ // 전체 기준 순위를 다시 매긴다. 그 다음 검색 필터를 적용해야 검색 결과에서도
+ // 원래 전체 랭킹 순위가 유지된다.
+ const hasDedicatedOrder=!!state.db.orderBy[state.order];
+ if(!hasDedicatedOrder){
+   rows.sort((a,b)=>{
+     const diff=state.order==='totalBalloon'
+       ? num(b.totalBalloon)-num(a.totalBalloon)
+       : num(b.totalCount)-num(a.totalCount);
+     if(diff!==0)return diff;
+     return String(a.signatureName||'').localeCompare(String(b.signatureName||''),'ko');
+   });
+   rows=rows.map((r,i)=>({...r,rank:i+1}));
+ }
+
+ const q=state.query.trim().toLowerCase();
+ if(q)rows=rows.filter(r=>String(r.signatureName||'').toLowerCase().includes(q));
+
+ return rows;
+}
+function vodLink(name){
+ const params=new URLSearchParams({deleted:'1',search:String(name||'')});
+ return `../signature-vods/#${params.toString()}`;
+}
+function render(){
+ const rows=filteredRows();
+ const size=state.pageSize===0?Math.max(rows.length,1):state.pageSize;
+ const pages=Math.max(1,Math.ceil(rows.length/size));if(state.page>pages)state.page=pages;
+ const start=(state.page-1)*size, visible=rows.slice(start,start+size);
+ els.summary.innerHTML=`<span>정렬 <strong>${state.order==='count'?'달성횟수순':'기여금액순'}</strong></span><span>·</span><span>조회기간 <strong>${esc(label())}</strong></span><span>·</span><span>전체 <strong>${num(state.dataset?.rowCount)}</strong>개</span>${state.query?`<span>·</span><span>검색결과 <strong>${rows.length}</strong>개</span>`:''}`;
+ if(!state.dataset){els.tbody.innerHTML='<tr><td colspan="4" class="empty">해당 조건의 백업 데이터가 없습니다.</td></tr>';els.pager.innerHTML='';return}
+ if(!visible.length){els.tbody.innerHTML='<tr><td colspan="4" class="empty">검색 조건에 맞는 시그니처가 없습니다.</td></tr>';els.pager.innerHTML='';return}
+ els.tbody.innerHTML=visible.map(r=>{
+   const deleted=r.activated===false?'<span class="deleted">삭제됨</span>':'';
+   return `<tr>
+    <td class="rank">${num(r.rank)}</td>
+    <td><div class="sig-cell">
+      <a class="play-link" href="${esc(vodLink(r.signatureName))}" title="시그니처 클립 아카이브에서 검색"></a>
+      <span class="sig-name">${esc(r.signatureName||'-')}</span>
+      <span class="sig-price">${num(r.balloonCount)}개</span>${deleted}
+    </div></td>
+    <td class="count">${num(r.totalCount).toLocaleString()}회</td>
+    <td class="total">${num(r.totalBalloon).toLocaleString()}</td>
+   </tr>`;
+ }).join('');
+ renderPager(pages);
+}
+function renderPager(pages){
+ if(pages<=1){els.pager.innerHTML='';return}
+ const set=new Set([1,pages,state.page-2,state.page-1,state.page,state.page+1,state.page+2]);
+ const nums=[...set].filter(n=>n>=1&&n<=pages).sort((a,b)=>a-b);
+ let out='',prev=0;
+ for(const n of nums){if(prev&&n-prev>1)out+='<span>…</span>';out+=`<button class="${n===state.page?'active':''}" data-page="${n}">${n}</button>`;prev=n}
+ els.pager.innerHTML=out;
+ $$('#pager button').forEach(b=>b.onclick=()=>{state.page=Number(b.dataset.page);render();scrollTo({top:0,behavior:'smooth'})});
+}
+function syncHash(){
+ const p=new URLSearchParams();p.set('order',state.order);p.set('view',state.mode);if(state.key)p.set(state.mode,state.key);if(state.query)p.set('search',state.query);
+ history.replaceState(null,'',`${location.pathname}${location.search}#${p}`);
+}
+function restoreFromHash(){
+ const p=new URLSearchParams(location.hash.replace(/^#/,''));
+ state.order=p.get('order')||'count';
+ const mode=p.get('view');state.mode=['all','season','excel','month','year'].includes(mode)?mode:'all';
+ state.key=['year','month','season','excel'].includes(state.mode)?p.get(state.mode):null;
+ state.query=p.get('search')||'';els.search.value=state.query;
+ $$('.period-tab').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode));
+}
+$$('.period-tab').forEach(b=>b.onclick=()=>{
+ state.mode=b.dataset.mode;state.key=defaultKey(state.mode);state.page=1;
+ $$('.period-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.mode===state.mode));
+ selectDataset();renderPeriodPicker();syncHash();render()
+});
+$$('.order-btn').forEach(b=>b.onclick=()=>{
+ const previousKey=state.key;
+
+ state.order=b.dataset.order;
+ bindGroup();
+
+ // 정렬 기준을 바꾸더라도 현재 선택한 연도/월/시즌/회차는 유지한다.
+ // 새 orderBy 그룹에 같은 기간 키가 실제로 존재할 때 그대로 사용하고,
+ // 없다면 count 그룹을 기반으로 클라이언트 정렬을 수행한다.
+ state.key=previousKey;
+ selectDataset();
+ renderPeriodPicker();
+
+ state.page=1;
+ syncHash();
+ render();
+});
+$('#searchBtn').onclick=()=>{state.query=els.search.value;state.page=1;syncHash();render()};
+els.search.addEventListener('keydown',e=>{if(e.key==='Enter')$('#searchBtn').click()});
+els.search.addEventListener('input',()=>{state.query=els.search.value;state.page=1;syncHash();render()});
+els.pageSize.onchange=()=>{state.pageSize=Number(els.pageSize.value);state.page=1;render()};
+$('#pickBtn').onclick=()=>els.fileInput.click();els.fileInput.onchange=e=>e.target.files[0]&&readFile(e.target.files[0]);$('#autoBtn').onclick=()=>autoLoad();
+els.loadPanel.addEventListener('dragover',e=>{e.preventDefault();els.loadPanel.style.background='#eef9ff'});els.loadPanel.addEventListener('dragleave',()=>els.loadPanel.style.background='');els.loadPanel.addEventListener('drop',e=>{e.preventDefault();els.loadPanel.style.background='';e.dataTransfer.files[0]&&readFile(e.dataTransfer.files[0])});
+window.addEventListener('hashchange',()=>{if(!state.db)return;restoreFromHash();if(!['count','totalBalloon'].includes(state.order))state.order=availableOrders()[0];bindGroup();if(state.mode!=='all'&&!state.key)state.key=defaultKey(state.mode);selectDataset();renderPeriodPicker();render()});
+init();
+})();
+</script>
+</body>
+</html>

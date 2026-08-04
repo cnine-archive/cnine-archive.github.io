@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>시그니처 클립 | 씨나인 엑셀 아카이브</title>
+<style>
+  :root{
+    --blue:#2d97cf; --blue2:#1688c7; --bg:#f5f7fa; --card:#fff; --text:#1f2937;
+    --muted:#6b7280; --line:#e5e7eb; --chip:#eef2f7; --danger:#e5484d; --shadow:0 18px 55px rgba(15,23,42,.18);
+  }
+  *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif}
+  button,input,select{font:inherit} button{cursor:pointer}
+  .topbar{height:64px;background:linear-gradient(135deg,#358fc0,#2d9bd1);color:#fff;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+  .brand{display:flex;align-items:center;min-width:0}.brand img{display:block;height:28px;width:auto;object-fit:contain}.brand small{font-weight:600;font-size:12px;opacity:.88;margin-left:12px;white-space:nowrap}
+  .subtitle{
+    margin-left:12px;
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    opacity:.92;
+    text-decoration:none;
+    transition:opacity .15s;
+}
+  .topbar .spacer{flex:1}.top-stat{font-size:13px;opacity:.92}
+  .main{max-width:1240px;margin:auto}
+  .main{padding:24px 20px 60px}
+  .load-panel{background:#fff;border:1px dashed #a9cfe4;border-radius:18px;padding:28px;text-align:center;margin-bottom:22px;box-shadow:0 8px 26px rgba(23,94,135,.08)}
+  .load-panel.drag{background:#eef9ff;border-color:var(--blue2)}
+  .load-panel h2{margin:0 0 8px}.load-panel p{margin:5px 0 16px;color:var(--muted);line-height:1.6}
+  .primary{border:0;background:var(--blue2);color:#fff;border-radius:10px;padding:11px 17px;font-weight:800;box-shadow:0 5px 14px rgba(22,136,199,.25)}
+  .secondary{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 15px;color:#374151}
+  .toolbar{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin:18px 0}
+  .searchbox{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:0 13px;min-width:0}
+  .searchbox input{border:0;outline:0;padding:12px 8px;width:100%;background:transparent}.searchbox span{color:#9ca3af}
+  .filter-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;flex:1}.tab{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 15px}.tab.active{background:var(--blue2);border-color:var(--blue2);color:#fff;font-weight:800}.deleted-toggle{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;white-space:nowrap}.deleted-toggle input{width:16px;height:16px;accent-color:var(--blue2)}
+  .summary{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:13px;margin:8px 0 14px}.summary strong{color:var(--text)}
+  .grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:18px 14px}
+  .sig-card{min-width:0}.thumb{aspect-ratio:16/9;border-radius:10px;background:#e5e7eb;overflow:hidden;position:relative;border:1px solid rgba(0,0,0,.05);box-shadow:0 3px 9px rgba(15,23,42,.08)}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}.thumb .fallback{height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#d9f0fd,#f5eaff);font-size:25px;font-weight:900;color:#2387bb;text-align:center;padding:10px}
+  .play{position:absolute;right:7px;top:7px;width:25px;height:25px;border-radius:50%;background:#e81728;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.25)}
+  .card-badges{position:absolute;right:7px;bottom:7px;display:flex;gap:5px;align-items:center}.card-badge{background:#14a7e4;color:#fff;padding:4px 7px;border-radius:7px;font-size:11px;font-weight:800;box-shadow:0 2px 5px rgba(0,0,0,.18)}.card-badge.new{background:#7c5ce6}.card-badge.deleted{background:#555f6d}
+  .sig-meta{display:flex;align-items:center;gap:7px;margin-top:8px;min-width:0}.balloon{background:#e8f1ff;color:#3276db;border-radius:8px;padding:3px 7px;font-size:11px}.sig-name{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sig-card button{all:unset;display:block;width:100%;cursor:pointer}
+  .empty{padding:80px 20px;text-align:center;color:var(--muted)}
+  .pager{display:flex;justify-content:center;gap:8px;margin-top:28px}.pager button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px}.pager button.active{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+  .modal-wrap{position:fixed;inset:0;background:rgba(15,23,42,.72);backdrop-filter:blur(5px);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}.modal-wrap.open{display:flex}
+  .modal{width:min(1080px,100%);max-height:92vh;background:#fff;border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden}
+  .modal-head{display:flex;align-items:center;padding:17px 20px;border-bottom:1px solid var(--line);gap:10px}.modal-title{font-size:19px;font-weight:900;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.modal-head .spacer{flex:1}.share-link{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 11px;color:#374151;font-size:13px;font-weight:700}.close{border:0;background:transparent;font-size:27px;color:#6b7280;line-height:1}
+  .member-strip{display:flex;gap:9px;padding:13px 16px 9px;overflow:auto;border-bottom:1px solid var(--line);scrollbar-width:thin}.member{border:0;background:#f2f4f7;border-radius:11px;padding:9px 15px;min-width:max-content;color:#4b5563;text-align:left}.member.active{background:#248ed1;color:#fff}.member b{display:block}.member small{display:block;margin-top:4px;opacity:.78}
+  .modal-body{overflow:auto;padding:16px 20px 22px}.hero{width:100%;aspect-ratio:16/9;background:#111827;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}.hero img{width:100%;height:100%;object-fit:contain}.hero iframe{width:100%;height:100%;border:0;display:block;background:#000}.hero .no-preview{color:#d1d5db;text-align:center;line-height:1.7}.hero-actions{position:absolute;right:12px;top:12px;display:flex;gap:8px;z-index:2}.hero-actions a,.hero-actions button{border:0;text-decoration:none;background:rgba(255,255,255,.94);color:#111827;border-radius:8px;padding:8px 11px;font-weight:800;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  .clip-head{display:flex;align-items:center;margin:12px 0 9px;gap:8px}.clip-head strong{font-size:14px}.clip-head .spacer{flex:1}.clip-count{font-size:12px;color:var(--muted)}
+  .clips{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:9px}.clip{border:2px solid transparent;border-radius:9px;background:#fff;padding:0;overflow:hidden;text-align:left}.clip.active{border-color:#258fcf}.clip-thumb{aspect-ratio:16/9;background:#d1d5db;position:relative;overflow:hidden}.clip-thumb img{width:100%;height:100%;object-fit:cover}.clip-date{position:absolute;left:4px;top:4px;background:rgba(17,24,39,.75);color:#fff;border-radius:5px;padding:3px 5px;font-size:9px}.clip-dur{position:absolute;right:4px;bottom:4px;background:rgba(17,24,39,.75);color:#fff;border-radius:4px;padding:2px 4px;font-size:9px}.clip-info{padding:5px 6px;font-size:10px;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .db-info{font-size:12px;color:var(--muted);margin-top:10px}.hidden{display:none!important}.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;border-radius:10px;padding:12px 16px;z-index:200;opacity:0;transform:translateY(8px);transition:.2s}.toast.show{opacity:1;transform:none}
+  @media(max-width:1050px){.grid{grid-template-columns:repeat(5,1fr)}.clips{grid-template-columns:repeat(5,1fr)}}
+  @media(max-width:780px){.grid{grid-template-columns:repeat(3,1fr)}.toolbar{grid-template-columns:1fr}.clips{grid-template-columns:repeat(3,1fr)}.top-stat{display:none}.modal-wrap{padding:0}.modal{height:100vh;max-height:none;border-radius:0}.main{padding-left:12px;padding-right:12px}}
+  @media(max-width:460px){.grid{grid-template-columns:repeat(2,1fr)}.clips{grid-template-columns:repeat(2,1fr)}.brand small{display:none}.topbar{padding:0 14px}.modal-body{padding:12px}.member-strip{padding-left:10px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../">
+    <img src="../logo-dark.png" alt="씨나인">
+  </a>
+  
+  <a class="subtitle" href="./">
+    시그니처 클립
+  </a>
+  <div class="spacer"></div><div class="top-stat" id="topStat">DB를 불러와 주세요</div>
+</header>
+<main class="main">
+  <section class="load-panel hidden" id="loadPanel">
+    <h2>CNINE 시그니처 DB 불러오기</h2>
+    <p><b>cnine-signature-db.json</b> 파일을 선택하거나 이 영역에 끌어다 놓으세요.<br>파일은 브라우저 안에서만 읽으며 외부로 전송하지 않습니다.</p>
+    <input id="fileInput" type="file" accept="application/json,.json" hidden />
+    <button class="primary" id="pickBtn">DB 파일 선택</button>
+    <button class="secondary" id="autoBtn">같은 폴더에서 자동 불러오기</button>
+    <div class="db-info" id="dbInfo"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="filter-row">
+      <div class="tabs" id="quickFilters">
+        <button class="tab active" data-filter="all">전체</button>
+        <button class="tab" data-filter="new">신규</button>
+        <button class="tab" data-filter="group">단체</button>
+        <button class="tab" data-filter="1000-2000">1000~2000</button>
+        <button class="tab" data-filter="2000-3000">2000~3000</button>
+        <button class="tab" data-filter="3000-5000">3000~5000</button>
+        <button class="tab" data-filter="5000-10000">5000~10000</button>
+        <button class="tab" data-filter="10000-20000">10000~20000</button>
+        <button class="tab" data-filter="20000+">20000~</button>
+      </div>
+      <label class="deleted-toggle"><input type="checkbox" id="showDeleted"> 삭제시그 표시</label>
+    </div>
+    <div class="toolbar">
+      <label class="searchbox"><span>⌕</span><input id="search" placeholder="시그 이름 또는 풍선 개수 검색" /></label>
+      <select class="secondary" id="sort">
+        <option value="balloonAsc">별풍선 수 ↑</option><option value="balloonDesc">별풍선 수 ↓</option><option value="nameAsc">이름 가나다순</option><option value="newest">최근 생성순</option><option value="vodDesc">영상 많은 순</option>
+      </select>
+      <select class="secondary" id="pageSize" aria-label="페이지당 시그니처 수">
+        <option selected>100</option><option>200</option><option>300</option><option>400</option><option>500</option>
+        <option>600</option><option>700</option><option>800</option><option>900</option><option>1000</option>
+      </select>
+    </div>
+    <div class="summary" id="summary"></div>
+    <div class="grid" id="grid"></div>
+    <div class="pager" id="pager"></div>
+  </section>
+</main>
+
+<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modalTitle"></div><div class="spacer"></div><button class="share-link" id="copyDeepLink">현재 영상 링크 복사</button><button class="close" id="closeBtn" aria-label="닫기">×</button></div>
+    <div class="member-strip" id="memberStrip"></div>
+    <div class="modal-body">
+      <div class="hero" id="hero"></div>
+      <div class="clip-head"><strong id="clipTitle"></strong><div class="spacer"></div><span class="clip-count" id="clipCount"></span></div>
+      <div class="clips" id="clips"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(() => {
+  'use strict';
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const state = { db:null, all:[], filtered:[], filter:'all', showDeleted:false, query:'', sort:'balloonAsc', page:1, pageSize:100, sig:null, member:null, clip:null, syncingHash:false };
+  const els = {loadPanel:$('#loadPanel'), app:$('#app'), fileInput:$('#fileInput'), grid:$('#grid'), pager:$('#pager'), summary:$('#summary'), search:$('#search'), sort:$('#sort'), pageSize:$('#pageSize'), modal:$('#modalWrap'), memberStrip:$('#memberStrip'), hero:$('#hero'), clips:$('#clips')};
+
+  function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+  function imgUrl(u){ if(!u) return ''; return u.startsWith('//') ? 'https:'+u : u; }
+  function signatureImage(s){ return s?.captureImageUrl || s?.imageUrl || ''; }
+  function soopEmbedUrl(v){
+    const raw=String(v?.externalId || v?.url || '');
+    const match=raw.match(/(?:player\/)?(\d{5,})/);
+    if(!match) return '';
+    return `https://vod.sooplive.com/player/${match[1]}/embed?showChat=false&autoPlay=true&mutePlay=false`;
+  }
+  function num(v){ return Number.isFinite(Number(v)) ? Number(v) : 0; }
+  function fmt(v){ return num(v).toString(); }
+  function date(v, withTime=false){ if(!v) return ''; const d=new Date(v); if(Number.isNaN(d.getTime())) return String(v); return new Intl.DateTimeFormat('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',...(withTime?{hour:'2-digit',minute:'2-digit'}:{})}).format(d); }
+  function duration(sec){sec=num(sec); return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`}
+  function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
+
+
+  function parseDeepLink(){
+    const params=new URLSearchParams(location.hash.replace(/^#/,''));
+    const signatureId=num(params.get('signature'));
+    const vodId=num(params.get('vod'));
+    const showDeleted=params.get('deleted')==='1';
+    const query=params.get('search')||'';
+    return {signatureId, vodId, showDeleted, query};
+  }
+  function deepLinkUrl({withoutModal=false}={}){
+    const u=new URL(location.href);
+    const params=new URLSearchParams();
+
+    // 목록 필터 상태
+    if(state.showDeleted) params.set('deleted','1');
+    if(state.query) params.set('search',state.query);
+
+    // 현재 열린 시그니처/영상 상태
+    if(!withoutModal && state.sig) params.set('signature',String(state.sig.id));
+    if(!withoutModal && state.clip) params.set('vod',String(state.clip.id));
+
+    u.hash=params.toString();
+    return u.toString();
+  }
+  function syncHash({push=false, clear=false}={}){
+    // 모달을 닫아도 삭제시그 표시와 검색어는 유지한다.
+    const u=new URL(deepLinkUrl({withoutModal:clear}));
+    state.syncingHash=true;
+    history[push?'pushState':'replaceState'](null,'',u);
+    queueMicrotask(()=>{state.syncingHash=false});
+  }
+  function findVodInSignature(signature, vodId){
+    for(const member of signature?.members||[]){
+      const clip=(member.vods||[]).find(v=>num(v.id)===num(vodId));
+      if(clip) return {member,clip};
+    }
+    return null;
+  }
+  function applyDeepLink(){
+    if(!state.db) return;
+
+    const {signatureId,vodId,showDeleted,query}=parseDeepLink();
+
+    // URL의 목록 상태를 UI와 내부 상태에 먼저 반영한다.
+    state.showDeleted=showDeleted;
+    state.query=query;
+    $('#showDeleted').checked=showDeleted;
+    els.search.value=query;
+    state.page=1;
+    apply();
+
+    if(!signatureId){
+      if(els.modal.classList.contains('open')) closeModal({updateHash:false});
+      return;
+    }
+
+    const signature=state.all.find(s=>num(s.id)===signatureId);
+    if(!signature){
+      toast('딥링크에 해당하는 시그니처를 찾지 못했습니다.');
+      return;
+    }
+
+    const match=vodId?findVodInSignature(signature,vodId):null;
+    openSignature(signatureId,{vodId:match?.clip?.id,updateHash:false});
+  }
+
+  async function readFile(file){
+    try{ loadDb(JSON.parse(await file.text()), file.name); }
+    catch(e){ console.error(e); alert('JSON 파일을 읽지 못했습니다.\n'+e.message); }
+  }
+  function normalizeDb(raw){
+    const signatures = Array.isArray(raw) ? raw : raw?.signatures;
+    if(!Array.isArray(signatures)) throw new Error('signatures 배열을 찾을 수 없습니다.');
+    return {...(Array.isArray(raw)?{}:raw), signatures};
+  }
+  function loadDb(raw, source){
+    const db=normalizeDb(raw); state.db=db; state.all=db.signatures;
+    state.page=1; $('#dbInfo').textContent=`${source} · ${fmt(state.all.length)}개 시그니처`;
+    $('#topStat').textContent=`시그니처 ${fmt(state.all.length)}개 · 클립 ${fmt(state.all.reduce((a,s)=>a+num(s.backedUpVodCount ?? (s.members||[]).reduce((x,m)=>x+(m.vods||[]).length,0)),0))}개`;
+    els.app.classList.remove('hidden');
+    els.loadPanel.classList.add('hidden');
+    // applyDeepLink()가 URL 필터 상태까지 반영한 뒤 목록을 렌더링한다.
+    applyDeepLink(); toast('DB를 불러왔습니다.');
+  }
+  function showLoadPanel(message=''){
+    els.loadPanel.classList.remove('hidden');
+    if(message) $('#dbInfo').textContent=message;
+  }
+  async function autoLoad({silent=false}={}){
+    try{
+      const r=await fetch('./cnine-signature-db.json',{cache:'no-store'});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      loadDb(await r.json(),'cnine-signature-db.json');
+      return true;
+    }catch(e){
+      console.warn('DB 자동 로딩 실패:',e);
+      if(!silent) showLoadPanel(`같은 경로의 cnine-signature-db.json을 불러오지 못했습니다. (${e.message})`);
+      return false;
+    }
+  }
+  async function initDb(){
+    if(location.protocol==='file:'){
+      showLoadPanel('오프라인 파일 실행 모드입니다. DB JSON 파일을 선택해 주세요.');
+      return;
+    }
+    const loaded=await autoLoad({silent:true});
+    if(!loaded) showLoadPanel('같은 경로에서 cnine-signature-db.json을 찾지 못했습니다. DB 파일을 직접 선택해 주세요.');
+  }
+
+  function descriptionTag(s){
+    return String(s.description ?? '').trim();
+  }
+  function isGroupSignature(s){
+    return descriptionTag(s).includes('단체');
+  }
+  function isNewSignature(s){
+    return descriptionTag(s).includes('신규');
+  }
+  function matchesQuickFilter(s){
+    const n=num(s.balloonCount);
+    switch(state.filter){
+      case'new':return isNewSignature(s);
+      case'group':return isGroupSignature(s);
+      case'1000-2000':return n>=1000&&n<2000;
+      case'2000-3000':return n>=2000&&n<3000;
+      case'3000-5000':return n>=3000&&n<5000;
+      case'5000-10000':return n>=5000&&n<10000;
+      case'10000-20000':return n>=10000&&n<20000;
+      case'20000+':return n>=20000;
+      default:return true;
+    }
+  }
+  function matches(s){
+    if(!state.showDeleted && s.activated!==true) return false;
+    if(!matchesQuickFilter(s)) return false;
+    const q=state.query.trim().toLowerCase(); if(!q) return true;
+    const balloon=String(s.balloonCount ?? ''); const name=String(s.name ?? '').toLowerCase(); const desc=String(s.description ?? '').toLowerCase();
+    return name.includes(q)||desc.includes(q)||balloon.includes(q);
+  }
+  function vodCount(s){return num(s.backedUpVodCount ?? (s.members||[]).reduce((a,m)=>a+(m.vods||[]).length,0))}
+  function sorter(a,b){
+    switch(state.sort){case'balloonDesc':return num(b.balloonCount)-num(a.balloonCount);case'nameAsc':return String(a.name||'').localeCompare(String(b.name||''),'ko');case'newest':return new Date(b.createdAt||0)-new Date(a.createdAt||0);case'vodDesc':return vodCount(b)-vodCount(a);default:return num(a.balloonCount)-num(b.balloonCount)||num(a.id)-num(b.id)}
+  }
+  function apply(){ state.filtered=state.all.filter(matches).sort(sorter); const pages=Math.max(1,Math.ceil(state.filtered.length/state.pageSize)); if(state.page>pages)state.page=pages; render(); }
+  function render(){
+    const start=(state.page-1)*state.pageSize, rows=state.filtered.slice(start,start+state.pageSize);
+    els.summary.innerHTML=`검색 결과 <strong>${fmt(state.filtered.length)}</strong>개 <span>·</span> ${fmt(start+1)}–${fmt(Math.min(start+rows.length,state.filtered.length))}`;
+    if(!rows.length){els.grid.innerHTML='<div class="empty" style="grid-column:1/-1">조건에 맞는 시그니처가 없습니다.</div>'}else els.grid.innerHTML=rows.map(s=>`
+      <article class="sig-card"><button data-id="${s.id}"><div class="thumb">
+      ${signatureImage(s)?`<img loading="lazy" src="${esc(imgUrl(signatureImage(s)))}" alt="${esc(s.name)}" onerror="this.outerHTML='<div class=&quot;fallback&quot;>${esc(s.balloonCount||s.name||'?')}</div>'">`:`<div class="fallback">${esc(s.balloonCount||s.name||'?')}</div>`}
+      ${(s.hasVideo||vodCount(s)>0)?'<span class="play">▶</span>':''}<span class="card-badges">${isNewSignature(s)?'<span class="card-badge new">신규</span>':''}${isGroupSignature(s)?'<span class="card-badge">단체</span>':''}${s.activated===true?'':'<span class="card-badge deleted">삭제</span>'}</span></div><div class="sig-meta"><span class="balloon">${fmt(s.balloonCount)}</span><span class="sig-name">${esc(s.name||'(이름 없음)')}</span></div></button></article>`).join('');
+    els.grid.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>openSignature(Number(b.dataset.id)));
+    renderPager();
+  }
+  function renderPager(){
+    const total=Math.max(1,Math.ceil(state.filtered.length/state.pageSize)); if(total<=1){els.pager.innerHTML='';return}
+    const set=new Set([1,total,state.page-2,state.page-1,state.page,state.page+1,state.page+2].filter(x=>x>=1&&x<=total)); let last=0, html='';
+    for(const p of [...set].sort((a,b)=>a-b)){if(last&&p-last>1)html+='<span>…</span>';html+=`<button class="${p===state.page?'active':''}" data-page="${p}">${p}</button>`;last=p}
+    els.pager.innerHTML=html; els.pager.querySelectorAll('button').forEach(b=>b.onclick=()=>{state.page=Number(b.dataset.page);render();scrollTo({top:190,behavior:'smooth'})});
+  }
+
+  function openSignature(id,{vodId=null,updateHash=true}={}){
+    const s=state.all.find(x=>num(x.id)===id); if(!s)return;
+    state.sig=s;
+    const matched=vodId?findVodInSignature(s,vodId):null;
+    state.member=matched?.member || (s.members||[])[0] || null;
+    state.clip=matched?.clip || state.member?.vods?.[0] || null;
+    $('#modalTitle').textContent=`${s.name||'(이름 없음)'} (${fmt(s.balloonCount)})${s.activated===true?'':' · 삭제'}`;
+    renderMembers(); renderMember(); els.modal.classList.add('open'); document.body.style.overflow='hidden';
+    if(updateHash) syncHash({push:true});
+  }
+  function renderMembers(){
+    const members=state.sig?.members||[];
+    els.memberStrip.innerHTML=members.length?members.map(m=>`<button class="member ${state.member?.id===m.id?'active':''}" data-mid="${m.id}"><b>${esc(m.name||m.soopUserId||'멤버')}</b><small>${quit(m.quitType)} · ${fmt((m.vods||[]).length||m.backedUpVodCount||m.vodCount)}개</small></button>`).join(''):'<div class="empty" style="padding:15px">멤버 데이터 없음</div>';
+    els.memberStrip.querySelectorAll('button').forEach(b=>b.onclick=()=>{state.member=members.find(m=>num(m.id)===Number(b.dataset.mid));state.clip=state.member?.vods?.[0]||null;renderMembers();renderMember();syncHash()});
+  }
+  function quit(q){return ({G:'졸업',O:'퇴사',F:'퇴사'}[q]||q||'재직')}
+  function renderMember(){
+    const m=state.member, vods=m?.vods||[]; if(!m){els.hero.innerHTML='<div class="no-preview">이 시그니처에는 백업된 멤버/클립 정보가 없습니다.</div>';els.clips.innerHTML='';$('#clipTitle').textContent='';$('#clipCount').textContent='';return}
+    if(!state.clip)state.clip=vods[0]||null; renderHero();
+    $('#clipTitle').textContent=`${state.sig.name} (${fmt(state.sig.balloonCount)}) ${m.name||''}의 다른 영상`;
+    $('#clipCount').textContent=`${fmt(vods.length)}개`;
+    els.clips.innerHTML=vods.length?vods.map(v=>`<button class="clip ${state.clip?.id===v.id?'active':''}" data-vid="${v.id}"><div class="clip-thumb">${v.thumbUrl?`<img loading="lazy" src="${esc(imgUrl(v.thumbUrl))}" alt="클립 썸네일">`:''}<span class="clip-date">${esc(date(v.registeredAt))}</span><span class="clip-dur">${duration(v.durationSec)}</span></div><div class="clip-info">${esc(v.externalId||v.id)}</div></button>`).join(''):'<div class="empty" style="grid-column:1/-1;padding:30px">클립 데이터 없음</div>';
+    els.clips.querySelectorAll('button').forEach(b=>b.onclick=()=>{state.clip=vods.find(v=>num(v.id)===Number(b.dataset.vid));renderMember();syncHash()});
+  }
+  function renderHero(){
+    const v=state.clip, s=state.sig;
+    if(!v){
+      const previewImage=signatureImage(s);
+      els.hero.innerHTML=previewImage?`<img src="${esc(imgUrl(previewImage))}" alt="${esc(s.name)}">`:'<div class="no-preview">미리보기 없음</div>';
+      return;
+    }
+    const embed=soopEmbedUrl(v);
+    const original=v.url || (v.externalId ? `https://vod.sooplive.com/player/${v.externalId}` : '');
+    els.hero.innerHTML=`${embed
+      ? `<iframe src="${esc(embed)}" title="${esc(state.sig?.name||'SOOP VOD')}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`
+      : (v.thumbUrl?`<img src="${esc(imgUrl(v.thumbUrl))}" alt="클립 미리보기">`:'<div class="no-preview">재생 가능한 VOD ID를 찾지 못했습니다.</div>')
+    }<div class="hero-actions">${original?`<a href="${esc(original)}" target="_blank" rel="noopener">SOOP에서 열기 ↗</a>`:''}<button id="copyUrl">URL 복사</button></div>`;
+    const c=$('#copyUrl');
+    if(c)c.onclick=async()=>{try{await navigator.clipboard.writeText(original);toast('URL을 복사했습니다.')}catch{prompt('URL 복사',original)}};
+  }
+  function stopPlayer(){
+    const frame=els.hero.querySelector('iframe');
+    if(frame){
+      try{frame.src='about:blank';}catch{}
+      frame.remove();
+    }
+    els.hero.innerHTML='';
+  }
+  function closeModal({updateHash=true}={}){
+    if(!els.modal.classList.contains('open')) return;
+    stopPlayer();
+    els.modal.classList.remove('open');
+    document.body.style.overflow='';
+    state.sig=null; state.member=null; state.clip=null;
+    if(updateHash) syncHash({clear:true});
+  }
+
+  $('#pickBtn').onclick=()=>els.fileInput.click(); els.fileInput.onchange=e=>e.target.files[0]&&readFile(e.target.files[0]); $('#autoBtn').onclick=()=>autoLoad();
+  ['dragenter','dragover'].forEach(ev=>els.loadPanel.addEventListener(ev,e=>{e.preventDefault();els.loadPanel.classList.add('drag')})); ['dragleave','drop'].forEach(ev=>els.loadPanel.addEventListener(ev,e=>{e.preventDefault();els.loadPanel.classList.remove('drag')})); els.loadPanel.addEventListener('drop',e=>e.dataTransfer.files[0]&&readFile(e.dataTransfer.files[0]));
+  $$('#quickFilters .tab').forEach(b=>b.onclick=()=>{$$('#quickFilters .tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.filter=b.dataset.filter;state.page=1;apply()});
+  $('#showDeleted').onchange=e=>{
+    state.showDeleted=e.target.checked;
+    state.page=1;
+    syncHash();
+    apply();
+  };
+  els.search.oninput=e=>{
+    state.query=e.target.value;
+    state.page=1;
+    syncHash();
+    apply();
+  };
+  els.sort.onchange=e=>{state.sort=e.target.value;state.page=1;apply()};
+  els.pageSize.onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;apply()};
+  $('#copyDeepLink').onclick=async()=>{const url=deepLinkUrl();try{await navigator.clipboard.writeText(url);toast('현재 영상 딥링크를 복사했습니다.')}catch{prompt('현재 영상 딥링크 복사',url)}};
+  $('#closeBtn').onclick=()=>closeModal(); els.modal.onclick=e=>{if(e.target===els.modal)closeModal()}; document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+  window.addEventListener('hashchange',()=>{if(!state.syncingHash)applyDeepLink()});
+  window.addEventListener('pagehide',stopPlayer);
+  initDb();
+})();
+</script>
+</body>
+</html>

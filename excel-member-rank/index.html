@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>엑셀플레이어 랭킹 | 씨나인 엑셀 아카이브</title>
+<style>
+:root{
+  --blue:#2d97cf;--blue2:#1688c7;--bg:#f6f8fb;--card:#fff;--text:#152238;
+  --muted:#758196;--line:#e4e8ee;--soft:#edf6ff;--red:#ff5a67;
+  --shadow:0 8px 28px rgba(15,23,42,.08)
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans KR",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}
+.topbar{height:64px;background:linear-gradient(135deg,#358fc0,#2d9bd1);color:#fff;display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.12)}
+.brand{display:flex;align-items:center;min-width:0}.brand img{height:28px;width:auto;display:block}.brand small{font-weight:700;font-size:12px;opacity:.9;margin-left:12px;white-space:nowrap}
+.subtitle{
+    margin-left:12px;
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    opacity:.92;
+    text-decoration:none;
+    transition:opacity .15s;
+}
+.spacer{flex:1}.top-stat{font-size:13px;opacity:.94}
+.main{max-width:1120px;margin:auto;padding:30px 20px 64px}
+.hero-title h1{font-size:25px;margin:0 0 7px}.hero-title p{margin:0;color:var(--muted);font-size:14px}
+.notice{margin:24px 0 20px;background:var(--soft);border:1px solid #b9dcff;color:#1764d7;border-radius:11px;padding:14px 16px;font-size:13px;line-height:1.65}
+.load-panel{background:#fff;border:1px dashed #a9cfe4;border-radius:16px;padding:28px;text-align:center;margin:22px 0;box-shadow:var(--shadow)}
+.load-panel h2{margin:0 0 8px}.load-panel p{margin:5px 0 16px;color:var(--muted);line-height:1.6}
+.primary{border:0;background:var(--blue2);color:#fff;border-radius:9px;padding:10px 16px;font-weight:800;box-shadow:0 5px 14px rgba(22,136,199,.24)}
+.secondary{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px;color:#384152}
+.hidden{display:none!important}
+.mode-tabs{display:flex;gap:3px;border-bottom:1px solid var(--line);margin-top:8px}
+.mode-tab{border:0;background:transparent;padding:11px 16px;color:#667085;border-bottom:2px solid transparent}
+.mode-tab.active{color:#111827;font-weight:800;border-color:var(--blue2)}
+.season-picker{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 8px}
+.season-chip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 13px;color:#4b5563}
+.season-chip.active{background:var(--blue2);border-color:var(--blue2);color:#fff;font-weight:800}
+.controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;margin:14px 0}
+.searchbox{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:0 12px;min-width:0}
+.searchbox span{color:#98a2b3}.searchbox input{border:0;outline:0;background:transparent;width:100%;padding:11px 8px}
+.check{display:flex;align-items:center;gap:7px;font-size:13px;color:#536075;white-space:nowrap}
+.summary{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:9px 0 12px}
+.summary strong{color:var(--text)}
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,.04)}
+table{width:100%;border-collapse:collapse}
+thead{background:#f1f2f4;color:#667085;font-size:13px}
+th,td{padding:14px 16px;border-bottom:1px solid var(--line);text-align:left}
+th:first-child,td:first-child{width:74px;text-align:center}
+th:last-child,td:last-child{text-align:right}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#f9fcff}
+.rank{font-weight:900}
+.member{display:flex;align-items:center;gap:10px;min-width:0}
+.avatar{width:38px;height:38px;border-radius:50%;background:#edf3f8;display:flex;align-items:center;justify-content:center;font-weight:900;color:#6f7f93;flex:0 0 auto;overflow:hidden}.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.member-main{min-width:0}.member-name{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.member-id{font-size:11px;color:#98a2b3;margin-top:3px}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}.badge{font-size:10px;border-radius:999px;padding:3px 7px;font-weight:800}
+.badge.active{background:#e8f7ef;color:#188a51}.badge.quit{background:#fff0f1;color:#dc4755}.badge.position{background:#edf6ff;color:#247fc0}.badge.staff{background:#f5efff;color:#7853bb}
+.season-rank{color:#56647a}.amount{font-weight:900;font-variant-numeric:tabular-nums}
+.detail-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;color:#536075;font-size:12px}
+.empty{text-align:center!important;padding:62px 20px!important;color:var(--muted)}
+.pager{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:24px}
+.pager button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px}.pager button.active{background:var(--blue2);color:#fff;border-color:var(--blue2)}
+.db-info{font-size:12px;color:var(--muted);margin-top:10px}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;border-radius:10px;padding:12px 16px;z-index:200;opacity:0;transform:translateY(8px);transition:.2s}.toast.show{opacity:1;transform:none}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.52);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}.modal.open{display:flex}
+.modal-card{width:min(720px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:17px;box-shadow:0 24px 70px rgba(0,0,0,.25)}
+.modal-head{display:flex;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+.modal-head h2{font-size:19px;margin:0}.modal-close{margin-left:auto;border:0;background:transparent;font-size:25px;color:#667085}
+.modal-body{padding:20px}.info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.info{border:1px solid var(--line);border-radius:11px;padding:12px}.info label{display:block;font-size:11px;color:#98a2b3;margin-bottom:5px}.info strong{font-size:14px}
+.history-title{font-size:15px;margin:22px 0 10px}.history-table{width:100%;border:1px solid var(--line);border-radius:10px;overflow:hidden}.history-table th,.history-table td{padding:10px 12px;font-size:12px}
+@media(max-width:760px){
+ .top-stat{display:none}.main{padding:22px 10px 50px}.controls{grid-template-columns:1fr 1fr}.searchbox{grid-column:1/-1}
+ th,td{padding:11px 9px}th:first-child,td:first-child{width:48px}.brand small{display:none}.member-id{display:none}.info-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../">
+    <img src="../logo-dark.png" alt="씨나인">
+  </a>
+  
+  <a class="subtitle" href="./">
+    엑셀플레이어 랭킹
+  </a>
+  <div class="spacer"></div><div class="top-stat" id="topStat">DB를 불러오는 중...</div>
+</header>
+
+<main class="main">
+  <section class="hero-title">
+    <h1>엑셀 플레이어 랭킹</h1>
+    <p>씨나인 역대 엑셀 멤버 기여도 아카이브</p>
+  </section>
+
+  <!-- <div class="notice">
+    씨나인 엑셀 역대 멤버의 누적 기여도와 시즌별 기여도를 조회합니다.
+  </div> -->
+
+  <section class="load-panel hidden" id="loadPanel">
+    <h2>엑셀 플레이어 랭킹 DB 불러오기</h2>
+    <p><b>cnine-excel-member-rank-db.json</b> 파일을 선택하거나 이 영역에 끌어다 놓으세요.<br>파일은 브라우저 안에서만 읽으며 외부로 전송하지 않습니다.</p>
+    <input id="fileInput" type="file" accept="application/json,.json" hidden>
+    <button class="primary" id="pickBtn">DB 파일 선택</button>
+    <button class="secondary" id="autoBtn">같은 폴더에서 자동 불러오기</button>
+    <div class="db-info" id="dbInfo"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="all">누적</button>
+      <button class="mode-tab" data-mode="season">시즌</button>
+    </div>
+
+    <div class="season-picker hidden" id="seasonPicker"></div>
+
+    <div class="controls">
+      <label class="searchbox"><span>⌕</span><input id="search" placeholder="멤버명 또는 SOOP ID 검색"></label>
+      <label class="check"><input id="showInactive" type="checkbox" checked> 퇴사 멤버 포함</label>
+      <select class="secondary" id="pageSize">
+        <option>50</option><option selected>100</option><option>200</option><option value="0">전체</option>
+      </select>
+    </div>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>순위</th><th>멤버</th><th id="rankNameHead">직급</th><th>기여도</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="pager" id="pager"></div>
+  </section>
+</main>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <div class="modal-head"><h2 id="modalTitle">멤버 상세</h2><button class="modal-close" id="modalClose">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const state={db:[],mode:'all',season:null,query:'',showInactive:true,page:1,pageSize:100};
+const els={loadPanel:$('#loadPanel'),app:$('#app'),fileInput:$('#fileInput'),seasonPicker:$('#seasonPicker'),search:$('#search'),showInactive:$('#showInactive'),pageSize:$('#pageSize'),tbody:$('#tbody'),pager:$('#pager'),summary:$('#summary'),modal:$('#modal')};
+
+function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(v){return Number.isFinite(Number(v))?Number(v):0}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function showLoadPanel(msg=''){els.loadPanel.classList.remove('hidden');if(msg)$('#dbInfo').textContent=msg}
+function normalizeDb(raw){
+ if(!Array.isArray(raw))throw new Error('CnineMember[] 배열 형식이 아닙니다.');
+ return raw.filter(Boolean);
+}
+function seasons(){
+ const set=new Set();
+ for(const m of state.db)for(const h of Array.isArray(m.seasonHistory)?m.seasonHistory:[])if(Number.isFinite(Number(h.seasonNo)))set.add(String(h.seasonNo));
+ return [...set].sort((a,b)=>Number(b)-Number(a));
+}
+function defaultSeason(){return seasons()[0]||null}
+function restoreHash(){
+ const p=new URLSearchParams(location.hash.replace(/^#/,''));
+ state.mode=p.get('view')==='season'?'season':'all';
+ state.season=p.get('season');
+ state.query=p.get('search')||'';
+ state.showInactive=p.get('inactive')!=='0';
+ els.search.value=state.query;els.showInactive.checked=state.showInactive;
+ $$('.mode-tab').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode));
+}
+function syncHash(){
+ const p=new URLSearchParams();p.set('view',state.mode);
+ if(state.mode==='season'&&state.season)p.set('season',state.season);
+ if(state.query)p.set('search',state.query);
+ if(!state.showInactive)p.set('inactive','0');
+ history.replaceState(null,'',`${location.pathname}${location.search}#${p}`);
+}
+function loadDb(raw,source){
+ state.db=normalizeDb(raw);restoreHash();
+ if(state.mode==='season'&&!seasons().includes(String(state.season)))state.season=defaultSeason();
+ renderSeasons();render();
+ $('#dbInfo').textContent=`${source} · 멤버 ${state.db.length.toLocaleString()}명 · 시즌 ${seasons().length}개`;
+ $('#topStat').textContent=`역대 멤버 ${state.db.length.toLocaleString()}명 · 시즌 ${seasons().length}개`;
+ els.loadPanel.classList.add('hidden');els.app.classList.remove('hidden');toast('DB를 불러왔습니다.');
+}
+async function readFile(file){try{loadDb(JSON.parse(await file.text()),file.name)}catch(e){alert('DB 파일을 읽지 못했습니다.\n'+e.message)}}
+async function autoLoad({silent=false}={}){
+ try{const r=await fetch('./cnine-excel-member-rank-db.json',{cache:'no-store'});if(!r.ok)throw new Error(`HTTP ${r.status}`);loadDb(await r.json(),'cnine-excel-member-rank-db.json');return true}
+ catch(e){if(!silent)showLoadPanel(`같은 경로의 DB를 불러오지 못했습니다. (${e.message})`);return false}
+}
+async function init(){
+ if(location.protocol==='file:'){showLoadPanel('오프라인 파일 실행 모드입니다. DB JSON 파일을 선택해 주세요.');return}
+ if(!await autoLoad({silent:true}))showLoadPanel('같은 경로에서 cnine-excel-member-rank-db.json을 찾지 못했습니다. DB 파일을 직접 선택해 주세요.');
+}
+function renderSeasons(){
+ if(state.mode!=='season'){els.seasonPicker.classList.add('hidden');els.seasonPicker.innerHTML='';return}
+ const list=seasons();els.seasonPicker.classList.remove('hidden');
+ els.seasonPicker.innerHTML=list.map(s=>`<button class="season-chip ${String(state.season)===s?'active':''}" data-season="${s}">시즌 ${s}</button>`).join('');
+ $$('.season-chip').forEach(b=>b.onclick=()=>{state.season=b.dataset.season;state.page=1;renderSeasons();syncHash();render()});
+}
+function allRows(){
+ let rows=state.db.map(m=>({member:m,donation:num(m.totalDonation),rankName:m.position||'-',staffExcluded:false}));
+ if(state.mode==='season'){
+   rows=state.db.map(m=>{
+     const h=(m.seasonHistory||[]).find(x=>String(x.seasonNo)===String(state.season));
+     return h?{member:m,donation:num(h.totalDonation),rankName:h.rankName||'-',staffExcluded:!!h.staffExcluded}:null;
+   }).filter(Boolean);
+ }
+ rows=rows.filter(r=>state.showInactive||r.member.activated);
+ const q=state.query.trim().toLowerCase();
+ if(q)rows=rows.filter(r=>String(r.member.name||'').toLowerCase().includes(q)||String(r.member.soopUserId||'').toLowerCase().includes(q));
+ rows.sort((a,b)=>b.donation-a.donation||String(a.member.name||'').localeCompare(String(b.member.name||''),'ko'));
+ return rows.map((r,i)=>({...r,rank:i+1}));
+}
+function avatarHtml(member){
+ const name=String(member?.name||member?.soopUserId||'?').trim();
+ const first=name.charAt(0)||'?';
+ const profile=String(member?.profileUrl||'').trim();
+ if(!profile)return `<div class="avatar">${esc(first)}</div>`;
+ return `<div class="avatar"><a href="${"https://www.sooplive.com/station/" + member.soopUserId}" target="_blank"><img src="${esc(profile)}" alt="${esc(name)} 프로필" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='${esc(first)}'"></a></div>`;
+}
+function render(){
+ const rows=allRows();const size=state.pageSize===0?Math.max(rows.length,1):state.pageSize;
+ const pages=Math.max(1,Math.ceil(rows.length/size));if(state.page>pages)state.page=pages;
+ const visible=rows.slice((state.page-1)*size,(state.page-1)*size+size);
+ $('#rankNameHead').textContent=state.mode==='season'?'시즌 직급':'현재 직급';
+ els.summary.innerHTML=`<span>조회 <strong>${state.mode==='season'?`시즌 ${esc(state.season)}`:'누적 기여도'}</strong></span><span>·</span><span>표시 <strong>${rows.length}</strong>명</span>${state.query?`<span>·</span><span>검색어 <strong>${esc(state.query)}</strong></span>`:''}`;
+ if(!visible.length){els.tbody.innerHTML='<tr><td colspan="4" class="empty">조건에 맞는 멤버가 없습니다.</td></tr>';els.pager.innerHTML='';return}
+ els.tbody.innerHTML=visible.map(r=>{
+   const m=r.member;
+   const avatar=avatarHtml(m);
+   const status=memberStatus(m);
+   const active=m.activated
+     ? '<span class="badge active">재직</span>'
+     : `<span class="badge quit">${esc(status)}</span>`;
+   const pos=r.rankName&&r.rankName!=='-'?`<span class="badge position">${esc(r.rankName)}</span>`:'';
+   const staff=r.staffExcluded?'<span class="badge staff">스태프 제외</span>':'';
+   return `<tr>
+    <td class="rank">${r.rank}</td>
+    <td><div class="member">
+      ${avatar}
+      <div class="member-main"><div class="member-name">${esc(m.name||'-')}</div><div class="member-id">${esc(m.soopUserId||'-')}</div><div class="badges">${active}${pos}${staff}</div></div>
+    </div></td>
+    <td class="season-rank">${esc(r.rankName||'-')}</td>
+    <td class="amount">${r.donation.toLocaleString()} <button class="detail-btn" data-id="${num(m.cnineMemberId)}">상세</button></td>
+   </tr>`;
+ }).join('');
+ $$('.detail-btn').forEach(b=>b.onclick=()=>openMember(Number(b.dataset.id)));
+ renderPager(pages);
+}
+function renderPager(pages){
+ if(pages<=1){els.pager.innerHTML='';return}
+ const set=new Set([1,pages,state.page-2,state.page-1,state.page,state.page+1,state.page+2]);
+ const nums=[...set].filter(n=>n>=1&&n<=pages).sort((a,b)=>a-b);let out='',prev=0;
+ for(const n of nums){if(prev&&n-prev>1)out+='<span>…</span>';out+=`<button class="${n===state.page?'active':''}" data-page="${n}">${n}</button>`;prev=n}
+ els.pager.innerHTML=out;$$('#pager button').forEach(b=>b.onclick=()=>{state.page=Number(b.dataset.page);render();scrollTo({top:0,behavior:'smooth'})});
+}
+function fmtDate(v){return v&&v!=='0000-00-00'?v:'-'}
+function quitTypeLabel(type){
+ return ({G:'졸업',F:'퇴사',O:'휴직'})[String(type||'').toUpperCase()]||type||'-';
+}
+function memberStatus(member){
+ if(member?.activated)return '재직';
+ const histories=Array.isArray(member?.histories)?member.histories:[];
+ const latest=histories[histories.length-1];
+ return quitTypeLabel(latest?.quitType)||'퇴사';
+}
+function openMember(id){
+ const m=state.db.find(x=>num(x.cnineMemberId)===id);if(!m)return;
+ $('#modalTitle').textContent=`${m.name||m.soopUserId||'멤버'} 상세`;
+ const seasonsHtml=(m.seasonHistory||[]).slice().sort((a,b)=>num(b.seasonNo)-num(a.seasonNo)).map(h=>`<tr><td>시즌 ${num(h.seasonNo)}</td><td>${esc(h.rankName||'-')}</td><td>${num(h.totalDonation).toLocaleString()}</td><td>${h.staffExcluded?'예':'아니오'}</td></tr>`).join('');
+ const historiesHtml=(m.histories||[]).map(h=>`<tr><td>${esc(fmtDate(h.joinDate))}</td><td>${esc(fmtDate(h.quitDate))}</td><td>${esc(quitTypeLabel(h.quitType))}</td></tr>`).join('');
+ const profilePreview=avatarHtml(m);
+ $('#modalBody').innerHTML=`
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">${profilePreview}<div><strong style="font-size:18px">${esc(m.name||'-')}</strong><div style="color:#98a2b3;font-size:12px;margin-top:3px">${esc(m.soopUserId||'-')}</div></div></div>
+  <div class="info-grid">
+   <div class="info"><label>SOOP ID</label><strong>${esc(m.soopUserId||'-')}</strong></div>
+   <div class="info"><label>현재 직급</label><strong>${esc(m.position||'-')}</strong></div>
+   <div class="info"><label>상태</label><strong>${esc(memberStatus(m))}</strong></div>
+   <div class="info"><label>누적 기여도</label><strong>${num(m.totalDonation).toLocaleString()}</strong></div>
+   <div class="info"><label>최초 합류일</label><strong>${esc(fmtDate(m.joinedAt))}</strong></div>
+   <div class="info"><label>최종 퇴사일</label><strong>${esc(fmtDate(m.quitAt))}</strong></div>
+  </div>
+  <h3 class="history-title">시즌별 기록</h3>
+  <div class="history-table"><table><thead><tr><th>시즌</th><th>직급</th><th>기여도</th><th>스태프 제외</th></tr></thead><tbody>${seasonsHtml||'<tr><td colspan="4">기록 없음</td></tr>'}</tbody></table></div>
+  <h3 class="history-title">합류·퇴사 이력</h3>
+  <div class="history-table"><table><thead><tr><th>합류일</th><th>퇴사일</th><th>퇴사 유형</th></tr></thead><tbody>${historiesHtml||'<tr><td colspan="3">기록 없음</td></tr>'}</tbody></table></div>`;
+ els.modal.classList.add('open');document.body.style.overflow='hidden';
+}
+function closeModal(){els.modal.classList.remove('open');document.body.style.overflow=''}
+$$('.mode-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;if(state.mode==='season'&&!state.season)state.season=defaultSeason();state.page=1;$$('.mode-tab').forEach(x=>x.classList.toggle('active',x===b));renderSeasons();syncHash();render()});
+els.search.oninput=e=>{state.query=e.target.value;state.page=1;syncHash();render()};
+els.showInactive.onchange=e=>{state.showInactive=e.target.checked;state.page=1;syncHash();render()};
+els.pageSize.onchange=e=>{state.pageSize=Number(e.target.value);state.page=1;render()};
+$('#pickBtn').onclick=()=>els.fileInput.click();els.fileInput.onchange=e=>e.target.files[0]&&readFile(e.target.files[0]);$('#autoBtn').onclick=()=>autoLoad();
+els.loadPanel.addEventListener('dragover',e=>{e.preventDefault();els.loadPanel.style.background='#eef9ff'});els.loadPanel.addEventListener('dragleave',()=>els.loadPanel.style.background='');els.loadPanel.addEventListener('drop',e=>{e.preventDefault();els.loadPanel.style.background='';e.dataTransfer.files[0]&&readFile(e.dataTransfer.files[0])});
+$('#modalClose').onclick=closeModal;els.modal.onclick=e=>{if(e.target===els.modal)closeModal()};addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+addEventListener('hashchange',()=>{if(!state.db.length)return;restoreHash();if(state.mode==='season'&&!seasons().includes(String(state.season)))state.season=defaultSeason();renderSeasons();render()});
+init();
+})();
+</script>
+</body>
+</html>
