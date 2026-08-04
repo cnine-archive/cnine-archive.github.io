@@ -268,7 +268,7 @@ function render(){
    return `<tr>
     <td class="rank">${num(r.rank)}</td>
     <td><div class="sig-cell">
-      <a class="play-link" href="${esc(vodLink(r.signatureName))}" title="시그니처 클립 아카이브에서 검색"></a>
+      <a class="play-link" href="${esc(vodLink(r.signatureName))}" title="시그니처 클립 아카이브에서 검색" target="_blank" rel="noopener noreferrer"></a>
       <span class="sig-name">${esc(r.signatureName||'-')}</span>
       <span class="sig-price">${num(r.balloonCount)}개</span>${deleted}
     </div></td>
