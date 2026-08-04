@@ -81,7 +81,7 @@ tbody tr:hover{background:#f9fcff}
 <main class="main">
   <section class="hero-title">
     <h1>엑셀후원 랭킹</h1>
-    <p>씨나인 후원자 엑셀 전체 · 연도별 · 월별 · 시즌별 랭킹 아카이브</p>
+    <p>씨나인 후원자 엑셀 전체 · 연도별 · 월별 · 시즌별 · 회차별 랭킹 아카이브</p>
   </section>
 
   <!-- <div class="notice">
@@ -104,6 +104,7 @@ tbody tr:hover{background:#f9fcff}
       <button class="period-tab" data-mode="year">년</button>
       <button class="period-tab" data-mode="month">월</button>
       <button class="period-tab" data-mode="season">시즌</button>
+      <button class="period-tab" data-mode="excel">회차</button>
     </div>
 
     <div class="period-picker hidden" id="periodPicker"></div>
@@ -178,10 +179,56 @@ function bindGroup(){state.group=state.db.excelTypes[state.excelType]}
 function availableYears(){return Object.keys(state.group?.yearly||{}).sort((a,b)=>b.localeCompare(a))}
 function availableMonths(){return Object.keys(state.group?.monthly||{}).sort((a,b)=>b.localeCompare(a))}
 function availableSeasons(){return Object.keys(state.group?.seasons||{}).sort((a,b)=>Number(b)-Number(a))}
+function excelDatasetLabel(key){
+ const dataset=state.group?.excels?.[key];
+ return String(dataset?.label||dataset?.name||`회차 ${key}`);
+}
+function parseExcelOrder(key){
+ const label=excelDatasetLabel(key);
+
+ // 예: S28 계급전, S21 2회차 난사데이, S12 통합
+ const seasonMatch=label.match(/S\s*(\d+)/i);
+ const seasonNo=seasonMatch?Number(seasonMatch[1]):-1;
+
+ let stage=0;
+ if(/계급전/.test(label)){
+   stage=100;
+ }else if(/통합/.test(label)){
+   stage=90;
+ }else{
+   const roundMatch=label.match(/(\d+)\s*회차/);
+   stage=roundMatch?Number(roundMatch[1]):0;
+ }
+
+ return {
+   seasonNo,
+   stage,
+   excelId:Number(key)||0,
+   label
+ };
+}
+function availableExcels(){
+ return Object.keys(state.group?.excels||{}).sort((a,b)=>{
+   const aa=parseExcelOrder(a);
+   const bb=parseExcelOrder(b);
+
+   // 최신 시즌부터
+   if(bb.seasonNo!==aa.seasonNo)return bb.seasonNo-aa.seasonNo;
+
+   // 같은 시즌에서는 계급전/통합 → 높은 회차 → 낮은 회차
+   if(bb.stage!==aa.stage)return bb.stage-aa.stage;
+
+   // 같은 회차의 팀전처럼 여러 항목이 있으면 실제 excelId 내림차순
+   if(bb.excelId!==aa.excelId)return bb.excelId-aa.excelId;
+
+   return bb.label.localeCompare(aa.label,'ko');
+ });
+}
 function defaultKey(mode){
  if(mode==='year')return availableYears()[0]||null;
  if(mode==='month')return availableMonths()[0]||null;
  if(mode==='season')return availableSeasons()[0]||null;
+ if(mode==='excel')return availableExcels()[0]||null;
  return null;
 }
 function selectDataset(){
@@ -190,20 +237,36 @@ function selectDataset(){
  else if(state.mode==='year')state.dataset=state.group.yearly?.[state.key]||null;
  else if(state.mode==='month')state.dataset=state.group.monthly?.[state.key]||null;
  else if(state.mode==='season')state.dataset=state.group.seasons?.[state.key]||null;
+ else if(state.mode==='excel')state.dataset=state.group.excels?.[state.key]||null;
 }
 function label(){
  if(state.mode==='all')return '전체 기간';
  if(state.mode==='year')return `${state.key}년`;
  if(state.mode==='month'){const [y,m]=String(state.key).split('-');return `${y}년 ${Number(m)}월`}
  if(state.mode==='season')return `시즌 ${state.key}`;
+ if(state.mode==='excel')return state.dataset?.label||state.dataset?.name||`회차 ${state.key}`;
  return '';
 }
 function renderPeriodPicker(){
  if(state.mode==='all'){els.periodPicker.classList.add('hidden');els.periodPicker.innerHTML='';return}
- const keys=state.mode==='year'?availableYears():state.mode==='month'?availableMonths():availableSeasons();
+ const keys=
+   state.mode==='year'?availableYears():
+   state.mode==='month'?availableMonths():
+   state.mode==='season'?availableSeasons():
+   availableExcels();
+
  els.periodPicker.classList.remove('hidden');
  els.periodPicker.innerHTML=keys.map(k=>{
-   const text=state.mode==='year'?`${k}년`:state.mode==='season'?`시즌 ${k}`:k;
+   let text=k;
+
+   if(state.mode==='year'){
+     text=`${k}년`;
+   }else if(state.mode==='season'){
+     text=`시즌 ${k}`;
+   }else if(state.mode==='excel'){
+     text=excelDatasetLabel(k);
+   }
+
    return `<button class="period-chip ${k===state.key?'active':''}" data-key="${esc(k)}">${esc(text)}</button>`;
  }).join('');
  if(!keys.length)els.periodPicker.innerHTML='<span style="color:#758196;font-size:13px;padding:8px 0">해당 구분의 백업 데이터가 없습니다.</span>';
@@ -252,8 +315,13 @@ function syncHash(){
 function restoreFromHash(){
  const p=new URLSearchParams(location.hash.replace(/^#/,''));
  state.excelType=p.get('type')||state.excelType;
- const mode=p.get('view');state.mode=['all','year','month','season'].includes(mode)?mode:'all';
- state.key=state.mode==='year'?p.get('year'):state.mode==='month'?p.get('month'):state.mode==='season'?p.get('season'):null;
+ const mode=p.get('view');state.mode=['all','year','month','season','excel'].includes(mode)?mode:'all';
+ state.key=
+   state.mode==='year'?p.get('year'):
+   state.mode==='month'?p.get('month'):
+   state.mode==='season'?p.get('season'):
+   state.mode==='excel'?p.get('excel'):
+   null;
  state.query=p.get('search')||'';els.search.value=state.query;
  $$('.period-tab').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode));
 }
