@@ -308,7 +308,7 @@ function render(){
  const season=currentSeason();if(!season)return;
  renderSeasonPills();renderBroadcastTabs(season);
  $('#seasonTitle').textContent=season.name||`시즌 ${season.seasonNo}`;
- $('#seasonMeta').textContent=`${fmtDate(season.startAt)} - ${fmtDate(season.endAt)} · 시즌 ID ${season.id}${season.rewardDispatchedAt?` · 보상 지급 ${fmtDate(season.rewardDispatchedAt)}`:''}`;
+ $('#seasonMeta').textContent=`${fmtDate(season.startAt)} - ${fmtDate(season.endAt)}`;
  $('#seasonRevenue').textContent=money(season.totalRevenue);
  renderSummary(season);renderMembers(season);renderTables(season);
 }
