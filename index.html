@@ -130,6 +130,26 @@ a{color:inherit}
   font-size:11px;
   color:#a0a9b7
 }
+
+.source-credit{
+  margin-top:8px;
+  text-align:center;
+  font-size:10px;
+  color:#a8b1bf;
+  letter-spacing:.01em
+}
+
+.source-credit a{
+  color:#8795a9;
+  text-decoration:none;
+  border-bottom:1px solid transparent;
+  transition:color .15s,border-color .15s
+}
+
+.source-credit a:hover{
+  color:#5f7188;
+  border-bottom-color:#9aa8b9
+}
 .image-fallback{
   display:none;
   width:min(660px,100%);
@@ -206,6 +226,10 @@ a{color:inherit}
   </section>
 
   <footer class="footer">CNINE EXCEL ARCHIVE</footer>
+  <div class="source-credit">
+    Archive based on data from
+    <a href="https://cnine.kr/" target="_blank" rel="noopener noreferrer">cnine.kr</a>
+  </div>
 
   <div class="visitor-counter" id="visitorCounter">
     <span>오늘</span>
