@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/png" href="../favicon.png">
 <title>시그니처 랭킹 | 씨나인 엑셀 아카이브</title>
+<meta
+  name="description"
+  content="씨나인 시그니처 랭킹 아카이브. 시그니처별 달성횟수와 기여금액 순위를 기간별로 확인할 수 있습니다."
+>
 <style>
 :root{
   --blue:#2d97cf;--blue2:#1494d2;--bg:#f7f9fc;--card:#fff;--text:#17243a;
@@ -93,7 +97,7 @@ tbody tr:hover{background:#f9fcff}
     씨나인 시그니처랭킹 아카이브입니다.<br>
   </div> -->
 
-  <section class="load-panel hidden" id="loadPanel">
+  <section class="load-panel hidden" id="loadPanel" data-nosnippet>
     <h2>시그니처랭킹 DB 불러오기</h2>
     <p><b>cnine-signature-rank-db.json</b> 파일을 선택하거나 이 영역에 끌어다 놓으세요.<br>파일은 브라우저 안에서만 읽으며 외부로 전송하지 않습니다.</p>
     <input id="fileInput" type="file" accept="application/json,.json" hidden>

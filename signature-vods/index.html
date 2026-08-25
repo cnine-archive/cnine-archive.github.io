@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/png" href="../favicon.png">
 <title>시그니처 클립 | 씨나인 엑셀 아카이브</title>
+<meta
+  name="description"
+  content="씨나인 시그니처 클립 아카이브. 시그니처를 검색하고 관련 영상과 과거 삭제 시그니처 기록을 확인할 수 있습니다."
+>
 <style>
   :root{
     --blue:#2d97cf; --blue2:#1688c7; --bg:#f5f7fa; --card:#fff; --text:#1f2937;
@@ -69,7 +73,7 @@
   <div class="spacer"></div><div class="top-stat" id="topStat">DB를 불러와 주세요</div>
 </header>
 <main class="main">
-  <section class="load-panel hidden" id="loadPanel">
+  <section class="load-panel hidden" id="loadPanel" data-nosnippet>
     <h2>CNINE 시그니처 DB 불러오기</h2>
     <p><b>cnine-signature-db.json</b> 파일을 선택하거나 이 영역에 끌어다 놓으세요.<br>파일은 브라우저 안에서만 읽으며 외부로 전송하지 않습니다.</p>
     <input id="fileInput" type="file" accept="application/json,.json" hidden />
