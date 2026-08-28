@@ -173,7 +173,7 @@ tbody tr:hover{background:#f9fcff}
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const state={db:[],mode:'all',season:null,query:'',showInactive:true,page:1,pageSize:100};
-const els={loadPanel:$('#loadPanel'),app:$('#app'),fileInput:$('#fileInput'),seasonPicker:$('#seasonPicker'),search:$('#search'),showInactive:$('#showInactive'),pageSize:$('#pageSize'),tbody:$('#tbody'),pager:$('#pager'),summary:$('#summary'),modal:$('#modal')};
+const els={loadPanel:$('#loadPanel'),app:$('#app'),fileInput:$('#fileInput'),seasonPicker:$('#seasonPicker'),search:$('#search'),showInactive:$('#showInactive'),pageSize:$('#pageSize'),tbody:$('#tbody'),pager:$('#pager'),summary:$('#summary'),modal:$('#modal'),modalCard:$('.modal-card')};
 
 function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function num(v){return Number.isFinite(Number(v))?Number(v):0}
@@ -335,6 +335,11 @@ function memberStatus(member){
  const latest=histories[histories.length-1];
  return quitTypeLabel(latest?.quitType)||'퇴사';
 }
+function resetMemberModalScroll(){
+ els.modalCard.scrollLeft=0;
+ els.modalCard.scrollTop=0;
+}
+
 function openMember(id){
  const m=state.db.find(x=>num(x.cnineMemberId)===id);if(!m)return;
  $('#modalTitle').textContent=`${m.name||m.soopUserId||'멤버'} 상세`;
@@ -355,7 +360,13 @@ function openMember(id){
   <div class="history-table"><table><thead><tr><th>시즌</th><th>직급</th><th>기여도</th><th>스태프 제외</th></tr></thead><tbody>${seasonsHtml||'<tr><td colspan="4">기록 없음</td></tr>'}</tbody></table></div>
   <h3 class="history-title">합류·퇴사 이력</h3>
   <div class="history-table"><table><thead><tr><th>합류일</th><th>퇴사일</th><th>퇴사 유형</th></tr></thead><tbody>${historiesHtml||'<tr><td colspan="3">기록 없음</td></tr>'}</tbody></table></div>`;
- els.modal.classList.add('open');document.body.style.overflow='hidden';
+
+ resetMemberModalScroll();
+ els.modal.classList.add('open');
+ document.body.style.overflow='hidden';
+
+ // 새 멤버의 상세 내용이 레이아웃에 반영된 뒤에도 스크롤 위치를 확실히 초기화한다.
+ requestAnimationFrame(resetMemberModalScroll);
 }
 function closeModal(){els.modal.classList.remove('open');document.body.style.overflow=''}
 $$('.mode-tab').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;if(state.mode==='season'&&!state.season)state.season=defaultSeason();state.page=1;$$('.mode-tab').forEach(x=>x.classList.toggle('active',x===b));renderSeasons();syncHash();render()});

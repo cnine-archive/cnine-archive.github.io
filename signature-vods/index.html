@@ -147,7 +147,7 @@
   'use strict';
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
   const state = { db:null, all:[], filtered:[], filter:'all', showDeleted:false, query:'', sort:'balloonAsc', page:1, pageSize:100, sig:null, member:null, clip:null, syncingHash:false };
-  const els = {loadPanel:$('#loadPanel'), app:$('#app'), fileInput:$('#fileInput'), grid:$('#grid'), pager:$('#pager'), summary:$('#summary'), search:$('#search'), sort:$('#sort'), pageSize:$('#pageSize'), modal:$('#modalWrap'), memberStrip:$('#memberStrip'), hero:$('#hero'), clips:$('#clips')};
+  const els = {loadPanel:$('#loadPanel'), app:$('#app'), fileInput:$('#fileInput'), grid:$('#grid'), pager:$('#pager'), summary:$('#summary'), search:$('#search'), sort:$('#sort'), pageSize:$('#pageSize'), modal:$('#modalWrap'), modalBody:$('.modal-body'), memberStrip:$('#memberStrip'), hero:$('#hero'), clips:$('#clips')};
 
   function esc(v=''){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
   function imgUrl(u){ if(!u) return ''; return u.startsWith('//') ? 'https:'+u : u; }
@@ -325,6 +325,14 @@
     els.pager.innerHTML=html; els.pager.querySelectorAll('button').forEach(b=>b.onclick=()=>{state.page=Number(b.dataset.page);render();scrollTo({top:190,behavior:'smooth'})});
   }
 
+  function resetModalScroll(){
+    // 모달 DOM을 재사용하므로 새 시그니처를 열 때 이전 스크롤 위치를 초기화한다.
+    els.memberStrip.scrollLeft=0;
+    els.memberStrip.scrollTop=0;
+    els.modalBody.scrollLeft=0;
+    els.modalBody.scrollTop=0;
+  }
+
   function openSignature(id,{vodId=null,updateHash=true}={}){
     const s=state.all.find(x=>num(x.id)===id); if(!s)return;
     state.sig=s;
@@ -332,7 +340,15 @@
     state.member=matched?.member || (s.members||[])[0] || null;
     state.clip=matched?.clip || state.member?.vods?.[0] || null;
     $('#modalTitle').textContent=`${s.name||'(이름 없음)'} (${fmt(s.balloonCount)})${s.activated===true?'':' · 삭제'}`;
-    renderMembers(); renderMember(); els.modal.classList.add('open'); document.body.style.overflow='hidden';
+    renderMembers();
+    renderMember();
+    resetModalScroll();
+    els.modal.classList.add('open');
+    document.body.style.overflow='hidden';
+
+    // 새 콘텐츠의 레이아웃 반영 후에도 스크롤 위치를 확실히 0으로 맞춘다.
+    requestAnimationFrame(resetModalScroll);
+
     if(updateHash) syncHash({push:true});
   }
   function renderMembers(){
